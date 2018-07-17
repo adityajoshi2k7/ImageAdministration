@@ -128,14 +128,14 @@ namespace MVCNetAdmin.Models
 
                             foreach (var ac in location.Elements("accession"))
                             {
-                               
-                                
-                                AccessionCodes existing=db.AccessionCodes.Where(o => o.Code == ac.Value.Trim()).FirstOrDefault();
+
+
+                                AccessionCodes existing = db.AccessionCodes.Where(o => o.Code == ac.Value.Trim()).FirstOrDefault();
                                 if (existing == null)
                                 {
                                     AccessionCodes acode = new AccessionCodes();
                                     acode.Code = ac.Value.Trim();
-                                    acode.IsTouch= ac.Attribute("isTouch").Value.Trim();
+                                    acode.IsTouch = ac.Attribute("isTouch").Value.Trim();
                                     acode.CreatedAt = DateTime.Now;
                                     acode.UpdatedAt = DateTime.Now;
                                     db.AccessionCodes.Add(acode);
@@ -476,8 +476,8 @@ namespace MVCNetAdmin.Models
                         foreach (AccLoc code in acl)
                         {
                             xmlWriter.WriteStartElement("accession");
-                            if(AccessionCodes.CheckIfTouch(code.AccCode))
-                                xmlWriter.WriteAttributeString("isTouch","Y");
+                            if (AccessionCodes.CheckIfTouch(code.AccCode))
+                                xmlWriter.WriteAttributeString("isTouch", "Y");
                             else
                                 xmlWriter.WriteAttributeString("isTouch", "N");
 
@@ -607,6 +607,40 @@ namespace MVCNetAdmin.Models
                         xmlWriter.WriteStartElement("diagnosticlevel");
                         xmlWriter.WriteString(loc.DiagnosticLevel.ToString());
                         xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteStartElement("configfileversion");
+                        xmlWriter.WriteString(loc.ConfigFileVersion.ToString());
+                        xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteStartElement("host");
+                        xmlWriter.WriteString(loc.Host);
+                        xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteStartElement("port");
+                        xmlWriter.WriteString(loc.Port);
+                        xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteStartElement("username");
+                        xmlWriter.WriteString(loc.Username);
+                        xmlWriter.WriteEndElement();
+
+
+                        xmlWriter.WriteStartElement("password");
+                        xmlWriter.WriteString(loc.Passwrd);
+                        xmlWriter.WriteEndElement();
+
+
+                        xmlWriter.WriteStartElement("isFTP");
+                        xmlWriter.WriteString(loc.IsFTP);
+                        xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteStartElement("directory");
+                        xmlWriter.WriteString(loc.DirectoryPath);
+                        xmlWriter.WriteEndElement();
+
+
+
+
 
                         List<AccLoc> acl = db.AccLoc.Where(o => o.LocCode == loc.Code).ToList();
 
