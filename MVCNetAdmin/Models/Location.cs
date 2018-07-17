@@ -74,6 +74,7 @@ namespace MVCNetAdmin.Models
             {
                 NetAdminContext db = new NetAdminContext();
                 db.Database.ExecuteSqlCommand("delete from AccLoc");
+                db.Database.ExecuteSqlCommand("delete from AccessionCodes");
                 db.Database.ExecuteSqlCommand("delete from Location");
 
 
@@ -127,10 +128,19 @@ namespace MVCNetAdmin.Models
 
                             foreach (var ac in location.Elements("accession"))
                             {
-                                AccessionCodes acode = new AccessionCodes();
-                                acode.Code= ac.Value;
-                                acode.CreatedAt = DateTime.Now;
-                                acode.UpdatedAt = DateTime.Now;
+                               
+                                
+                                AccessionCodes existing=db.AccessionCodes.Where(o => o.Code == ac.Value.Trim()).FirstOrDefault();
+                                if (existing == null)
+                                {
+                                    AccessionCodes acode = new AccessionCodes();
+                                    acode.Code = ac.Value.Trim();
+                                    acode.IsTouch= ac.Attribute("isTouch").Value.Trim();
+                                    acode.CreatedAt = DateTime.Now;
+                                    acode.UpdatedAt = DateTime.Now;
+                                    db.AccessionCodes.Add(acode);
+                                    db.SaveChanges();
+                                }
 
                                 AccLoc acl = new AccLoc();
                                 acl.LocCode = location.Element("code").Value;
