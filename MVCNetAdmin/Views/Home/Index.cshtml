@@ -1,0 +1,392 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+@using System.Collections;
+<script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
+<script>tinymce.init({ selector: 'textarea', readonly: 1 });</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/css/bootstrap-select.min.css">
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading font-weight-bold" style="text-align:center;"><strong>Site Names</strong></div>
+            <div class="panel-body">
+
+                <select class="selectpicker form-control" data-style="btn-primary" name="sites" onchange="return viewSiteDetails(this.value);" data-live-search="true" id="sites">
+                    @{ List<Location> al = (List<Location>)ViewData["locations"];}
+                    <option selected disabled hidden>Select</option>
+                    <optgroup label="Regular Sites">
+                        @foreach (Location loc in al)
+                        {
+                            System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!" + loc.Name);
+                            if (loc.IsFTP == "N")
+                            {
+                                <option value="@loc.Code">@loc.Name</option>
+
+
+                            }
+
+                        }
+                    </optgroup>
+                    <optgroup label="FTP Sites">
+                        @foreach (Location loc in al)
+                        {
+                            if (loc.IsFTP == "Y")
+                            {
+                                <option value="@loc.Code">@loc.Name</option>
+
+
+                            }
+
+                        }
+                    </optgroup>
+
+                </select>
+
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading font-weight-bold" style="text-align:center;"><strong>Site Details</strong></div>
+            <div class="panel-body">
+                <div class="form-group row">
+                    <div class="col-lg-12">
+                        <label>Name</label>
+                        <input id="name" type="text" class="form-control" disabled />
+
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-12" id="codediv">
+                        <label>Code</label>
+                        <input id="code" type="text" class="form-control" disabled />
+                    </div>
+                </div>
+                <div class="form-group row" id="hostdiv" style="display:none;">
+                    <div class="col-lg-12">
+                        <label>Host</label>
+                        <input id="host" type="text" class="form-control" disabled />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-12" id="pathdiv">
+                        <label>Path</label>
+                        <input id="path" type="text" class="form-control" disabled />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-6" id="serverdiv">
+                        <label>Server</label>
+                        <input id="server" type="text" class="form-control" disabled />
+                    </div>
+                    <div class="col-lg-6" id="portdiv" style="display:none;">
+                        <label>Port Number</label>
+                        <input id="port" type="text" class="form-control" disabled />
+                    </div>
+                    <div class="col-lg-6" id="statusdiv">
+                        <label>Status</label>
+                        <input id="status" type="text" class="form-control" disabled />
+                    </div>
+                    <div class="col-lg-6" id="directorydiv" style="display:none;">
+                        <label>Directory</label>
+                        <input id="directory" type="text" class="form-control" disabled />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-6" id="diagnosticdiv">
+                        <label>Diagnostic Level</label>
+                        <input id="dgl" type="text" class="form-control" disabled>
+                    </div>
+                    <div class="col-lg-6" id="usernamediv" style="display:none;">
+                        <label>Username</label>
+                        <input id="username" type="text" class="form-control" disabled />
+                    </div>
+                    <div class="col-lg-6" id="retentiondiv">
+                        <label>Retention Period</label>
+                        <input id="rp" type="text" class="form-control" disabled>
+                    </div>
+                    <div class="col-lg-6" id="passworddiv" style="display:none;">
+                        <label>Password</label>
+                        <input id="password" type="text" class="form-control" disabled />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-12" id="accessiondiv">
+                        <label>Accession Codes (Touch codes are shown in blue)</label>
+                        <br />
+                        <textarea id="ac" class="form-control" disabled></textarea>
+                        @*<%--<asp:TextBox TextMode="MultiLine" ID="txtMutiLine" runat="server" CssClass="form-control" Enabled="False"></asp:TextBox>--%>
+                            <FTB:FreeTextbox runat="server" ID="txtMutiLine" ToolbarLayout="false" Height="100%" Width="100%" ReadOnly="true"></FTB:FreeTextbox>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading font-weight-bold" style="text-align:center;"><strong>Sites</strong></div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <a asp-controller="Location" asp-action="AddNewForm">
+                            Add New Site
+                        </a>
+
+                    </div>
+                    <div class="col-lg-6">
+                        <a asp-controller="Location" asp-action="EditForm" onclick="return eidtLocation(this);">
+                            Edit Selected Site
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <a asp-controller="Location"
+                           asp-action="RemoveLocation"
+                           onclick="return removeLocation(this);">
+                            Remove Selected Site
+                        </a>
+
+                    </div>
+                    <div class="col-lg-6">
+                        <a href="#" onclick="pingSelectedSite($('#server').val(),$('#host').val())">Ping Selected Site</a>
+
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <a asp-controller="Location" asp-action="AddNewFTPForm">
+                            Add New FTP Site
+                        </a>
+                    </div>
+                    <div class="col-lg-6">
+                        <a href="#" onclick="pingAllSites()">Ping All Sites</a>
+                    </div>
+                    @*<div class="col-lg-6">
+                            <a onclick="window.open('file:///C:/Cranford/', '_blank');">view selected site</a>
+                        </div>*@
+                </div>
+                <div class="row" id="ftprow" style="display:none;">
+                    <div class="col-lg-6">
+                        <a onclick="convertToFTP();" data-toggle="modal" data-target="#partialmodal" href="#">
+                            Convert to FTP
+                        </a>
+
+                    </div>
+
+
+
+
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading font-weight-bold" style="text-align:center;"><strong>Accession Codes</strong></div>
+            <div class="panel-body">
+
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <a href="#" onclick="viewAllCodes()">View All Accession Codes</a>
+
+                    </div>
+                    <div class="col-lg-6">
+                        <a href="#" onclick="$('#myModalSearch').modal('show');">Find Accession Code</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <a href="#" onclick="viewTouch();">View Touch Codes</a>
+
+                    </div>
+                    <div class="col-lg-6">
+                        <a asp-controller="AccessionCodes"
+                           asp-action="AddRemove">
+                            Add / Delete Code
+                        </a>
+                    </div>
+
+                </div>
+
+
+                <div id="myModal" class="modal fade">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                    &times;
+                                </button>
+                                <h4><label id="topic" class="modal-title">Touch Codes</label></h4>
+                            </div>
+                            <div class="modal-body">
+                                <label style="font-weight:normal;white-space:pre-wrap;word-wrap: break-word;" id="listOfCodes"></label>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading font-weight-bold" style="text-align:center;"><strong>Config Files</strong></div>
+            <div class="panel-body">
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <a href="#" onclick="publishSelectedOrALL('single');">Publish At Selected Site</a>
+
+                    </div>
+                    <div class="col-lg-6">
+
+                        <a href="#" onclick="publishSelectedOrALL('all');">Publish At All Sites</a>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <a href="#" onclick="verifyAll();">Verify At All Sites</a>
+
+                    </div>
+                    <div class="col-lg-6">
+
+                        <a href="#" onclick="verifySelected();">Verify At Selected Site</a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <a onclick="recoverDBForm();" data-toggle="modal" data-target="#partialmodal" href="#">
+                            Recover Database
+                        </a>
+
+                    </div>
+                </div>
+
+
+                <div id="myModal" class="modal fade">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                    &times;
+                                </button>
+                                <h4><label id="topic" class="modal-title">Touch Codes</label></h4>
+                            </div>
+                            <div class="modal-body">
+                                <label style="font-weight:normal;white-space:pre-wrap;word-wrap: break-word;" id="listOfCodes"></label>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+
+
+
+    <div id="myModalSearch" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4><label class="modal-title">Find Accession Codes</label></h4>
+                </div>
+
+                <div class="modal-body">
+
+                    <label for="code">Accession Code</label>
+                    <input id="searchcode" type="text" class="form-control" placeholder="Enter Accession Code" required />
+                    <br />
+                    <label id="label1" class="modal-title" style="display:none;">Locations:</label>
+                    <br />
+                    <textarea id="txtarea1" class="form-control" readonly style="display:none;height:100px;"></textarea>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" onclick="searchCode($('#searchcode').val());">Search</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modalloader"><!-- Place at bottom of page --></div>
+    @if (TempData["msg"].ToString() != "")
+    {
+        <div class="alert alert-success" id="success-alert" style="text-align:center;position: fixed;top:0;left:0;width:100%;z-index:9999; margin:0 auto;">
+            <button type="button" class="close" data-dismiss="alert">x</button>
+            <strong>@TempData["msg"].ToString()</strong>
+
+        </div>
+        <script>
+            $(document).ready(function () {
+
+                $("#success-alert").fadeTo(5000, 500).slideUp(500, function () {
+                    $("#success-alert").slideUp(500);
+                });
+            });
+
+
+        </script>
+
+
+
+    }
+
+    @if (TempData["msgfailure"] != null && TempData["msgfailure"].ToString() != "")
+    {
+        <div class="alert alert-danger" id="success-alert" style="text-align:center;position: fixed;top:0;left:0;width:100%;z-index:9999; margin:0 auto;">
+            <button type="button" class="close" data-dismiss="alert">x</button>
+            <strong style="white-space:pre-wrap">@TempData["msgfailure"].ToString()</strong>
+
+        </div>
+        <script>
+            $(document).ready(function () {
+
+                $("#success-alert").fadeTo(5000, 500).slideUp(500, function () {
+                    $("#success-alert").slideUp(500);
+                });
+            });
+
+
+        </script>
+
+
+
+    }
+
+
+

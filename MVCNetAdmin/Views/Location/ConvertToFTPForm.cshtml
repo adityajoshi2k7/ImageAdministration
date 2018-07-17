@@ -1,0 +1,107 @@
+﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+<div class="row">
+    <div class="col-lg-12">
+    <div class="form-group">
+        <form asp-action="ConvertToFTP" id="myform2">
+
+               
+              
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <strong><label class="font-weight-bold required ">Location Name*</label></strong>
+                            <input name="name" id="mname" type="text" value="@TempData["name"]" class="form-control" disabled="disabled" />
+                            
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <strong><label class="font-weight-bold required ">Location Code*</label></strong>
+                            <input name="code" id="mcode" type="text" value="@TempData["code"]" class="form-control" disabled="disabled" />
+                            <input type="hidden" name="code" value="@TempData["code"]" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <strong><label class="font-weight-bold required ">Host Name*</label></strong>
+                            <input name="host" id="mhost" type="text"  class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-lg-6">
+                            <strong><label class="font-weight-bold required ">Username</label></strong>
+                            <input name="username" id="musername" type="text" class="form-control"  />
+                        </div>
+                        <div class="col-lg-6">
+                            <strong><label class="font-weight-bold required ">Password</label></strong>
+                            <input name="password" id="mpassword" type="password" class="form-control"  />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-6">
+                            <strong><label class="font-weight-bold required ">Port Number*</label></strong>
+                            <input name="port" id="mport" type="text"class="form-control" />
+                        </div>
+                        <div class="col-lg-6">
+                            <strong><label class="font-weight-bold required ">Directory</label></strong>
+                            <a href="#" data-toggle="tooltip" title="Don't include any '/' at the beginning or at end. "><i class="glyphicon glyphicon-info-sign"></i></i></a>
+                            <input name="directory" id="mdirectory" type="text" class="form-control"  />
+                        </div>
+
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-lg-6">
+                            <input type="submit" value="Submit" class="btn btn-primary" />
+                            <button type="button" class="btn btn-default" data-dismiss="modal">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                
+           
+        </form>
+    </div>
+        </div>
+</div>
+<script>
+
+    $(document).ready(function () {
+        $("#myform2").validate({
+            errorClass: "my-error-class",
+            rules: {
+                host: "required",
+                port: "required"
+            },
+            messages: {
+                host: "Required",
+                port: "Required"
+                //email: "Please enter a valid email address",
+                //phone: {
+                //    required: "Please enter your phone number",
+                //    number: "Please enter only numeric value"
+                //},
+                //url: {
+                //    url: "Please enter valid url"
+                //},
+                //username: {
+                //    required: "Please enter a username",
+                //    minlength: "Your username must consist of at least 6 characters"
+                //},
+                //password: {
+                //    required: "Please provide a password",
+                //    minlength: "Your password must be at least 6 characters long"
+                //},
+                //confirm_password: {
+                //    required: "Please provide a password",
+                //    minlength: "Your password must be at least 6 characters long",
+                //    equalTo: "Please enter the same password as above"
+                //},
+                //agree: "Please accept our policy"
+            }
+        });
+    });
+
+</script>
+

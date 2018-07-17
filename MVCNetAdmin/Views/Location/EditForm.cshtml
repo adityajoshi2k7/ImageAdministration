@@ -1,0 +1,218 @@
+﻿
+@{
+    ViewData["Title"] = "EditForm";
+}
+@using System.Collections;
+@{
+    Location loc = (Location)ViewData["location"];
+}
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<div class="row">
+    <div class="form-group  col-md-4 col-md-offset-4 ">
+        <form asp-action="EditSite" id="myform">
+            <div class="panel panel-default">
+                <div class="panel-heading font-weight-bold" style="text-align:center;"><strong>Edit Site</strong></div>
+                <div class="panel-body">
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <strong><label class="font-weight-bold required ">Location Name</label></strong>
+                            <input name="name" type="text" class="form-control" value="@loc.Name" />
+
+                        </div>
+                    </div>
+                    <div class="form-group row">
+
+                        <div class="col-lg-12">
+                            <strong><label class="font-weight-bold required ">Location Code</label></strong>
+                            <input name="code" type="text" class="form-control" value="@loc.Code" disabled />
+                            <input type="hidden" name="code" value="@loc.Code" />
+                        </div>
+                    </div>
+                    @if (loc.IsFTP == "N")
+                    {
+                        <div class="form-group row">
+                            <div class="col-lg-12">
+                                <strong><label class="font-weight-bold required ">Location Path</label></strong>
+                                <input name="path" type="text" class="form-control" value="@loc.Path" required />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-6">
+                                <strong><label class="font-weight-bold required ">Server Name</label></strong>
+                                <input name="servername" type="text" class="form-control" value="@loc.Server" required />
+                            </div>
+                            <div class="col-lg-6">
+                                <strong><label class="font-weight-bold required ">Location Status</label></strong>
+                                <select name="status" id="status" class="form-control">
+                                    <option>Active</option>
+                                    <option>InActive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-6">
+                                <strong><label class="font-weight-bold required ">Location Diagnostic Code</label></strong>
+                                <select name="diagnostic" id="diagnostic" class="form-control">
+                                    <option>0</option>
+                                    <option>1</option>
+                                    <option>2</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-6">
+                                <strong><label class="font-weight-bold required ">Location Retention Period</label></strong>
+                                <select name="retention" id="retention" class="form-control">
+                                    <option>60</option>
+                                    <option>90</option>
+                                    <option>120</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-12">
+                                <strong><label class="font-weight-bold required ">Accession Codes</label></strong>
+                                @{
+                                    String code = ViewData["codes"].ToString();
+
+                                }
+                                <textarea name="accession" class="form-control" disabled>@code</textarea>
+                            </div>
+                        </div>
+
+                    }
+                    else
+                    {
+
+                        <div class="form-group row" id="hostdiv">
+                            <div class="col-lg-12">
+                                <label>Host</label>
+                                <input name="host" id="host" type="text" class="form-control" value="@loc.Host" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-6" id="usernamediv">
+                                <label>Username</label>
+                                <input id="username" name="username" type="text" class="form-control" value="@loc.Username" />
+                            </div>
+                            <div class="col-lg-6" id="passworddiv">
+                                <label>Password</label>
+                                <input id="password" name="password" type="text" class="form-control" value="@loc.Passwrd" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-6" id="portdiv">
+                                <label>Port Number</label>
+                                <input id="port" name="port" type="text" class="form-control" value="@loc.Port"/>
+                            </div>
+
+                            <div class="col-lg-6" id="directorydiv">
+                                <label>Directory</label>
+                                <input id="directory"  name="directory" type="text" class="form-control" value="@loc.DirectoryPath" />
+                            </div>
+                        </div>
+
+                    }
+
+
+                    <div class="form-group row">
+                        <strong> <asp:Label ID="Label9" runat="server" ForeColor="Red" Text="Label" Visible="False"></asp:Label></strong>
+                        <br />
+                        <div class="col-lg-6">
+                            <input type="submit" value="Edit Site" class="btn btn-primary" />
+                            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Home")'">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    ddl = document.getElementById("retention");
+    ddl.value = @loc.RetentionPeriod;
+    ddl = document.getElementById("diagnostic");
+    ddl.value = @loc.DiagnosticLevel;
+    ddl = document.getElementById("status");
+    ddl.value = "@loc.Status";
+
+
+</script>
+<script>
+
+        $(document).ready(function () {
+            $("#myform").validate({
+                errorClass: "my-error-class",
+                rules: {
+                    name: "required",
+                    servername: "required",
+                    path: "required",
+                    code: "required",
+                    accession: "required",
+                    host: "required",
+                    port:"required"
+                    //email: {
+                    //    required: true,
+                    //    email: true
+                    //},
+                    //phone: {
+                    //    required: true,
+                    //    number: true
+                    //},
+                    //url: {
+                    //    required: false,
+                    //    url: true
+                    //},
+                    //username: {
+                    //    required: true,
+                    //    minlength: 6
+                    //},
+                    //password: {
+                    //    required: true,
+                    //    minlength: 6
+                    //},
+                    //confirm_password: {
+                    //    required: true,
+                    //    minlength: 6,
+                    //    equalTo: "#password"
+                    //},
+                    //agree: "required"
+                },
+                messages: {
+                    name: "Required",
+                    servername: "Required",
+                    path: "Required",
+                    code: "Required",
+                    accession: "Required",
+                    host: "Required",
+                    port: "Required"
+                    //email: "Please enter a valid email address",
+                    //phone: {
+                    //    required: "Please enter your phone number",
+                    //    number: "Please enter only numeric value"
+                    //},
+                    //url: {
+                    //    url: "Please enter valid url"
+                    //},
+                    //username: {
+                    //    required: "Please enter a username",
+                    //    minlength: "Your username must consist of at least 6 characters"
+                    //},
+                    //password: {
+                    //    required: "Please provide a password",
+                    //    minlength: "Your password must be at least 6 characters long"
+                    //},
+                    //confirm_password: {
+                    //    required: "Please provide a password",
+                    //    minlength: "Your password must be at least 6 characters long",
+                    //    equalTo: "Please enter the same password as above"
+                    //},
+                    //agree: "Please accept our policy"
+                }
+            });
+        });
+
+</script>
+
+
+
+
+

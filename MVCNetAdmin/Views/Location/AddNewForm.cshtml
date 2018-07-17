@@ -1,0 +1,207 @@
+﻿@{
+    ViewData["Title"] = "AddNewForm";
+}
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+<div class="row">
+    <div class="form-group  col-md-4 col-md-offset-4 ">
+        <form asp-action="AddNewSite" id="myform">
+            <div class="panel panel-default">
+                <div class="panel-heading font-weight-bold" style="text-align:center;"><strong>Add New Site</strong></div>
+                <div class="panel-body">
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <strong><label class="font-weight-bold required ">Location Name*</label></strong>
+                            <input name="name" id="name" type="text" value="@TempData["name"]" class="form-control" />
+
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <strong><label class="font-weight-bold required ">Server Name*</label></strong>
+                            <input name="servername" id="servername" type="text" value="@TempData["servername"]" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <strong><label class="font-weight-bold required ">Location Path*</label></strong>
+                            <input name="path" id="path" type="text" value="@TempData["path"]" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-6">
+                            <strong><label class="font-weight-bold required ">Location Code*</label></strong>
+                            <input name="code" id="code" type="text" class="form-control" value="@TempData["code"]" />
+                        </div>
+                        <div class="col-lg-6">
+                            <strong><label class="font-weight-bold required ">Location Status</label></strong>
+                            <select name="status" id="status" class="form-control" value="@TempData["status"]">
+                                <option selected="selected">Active</option>
+                                <option>InActive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-6">
+                            <strong><label class="font-weight-bold required ">Location Diagnostic Code</label></strong>
+                            <select name="diagnostic" id="diagnostic" class="form-control" value="@TempData["diagnostic"]">
+                                <option selected="selected">0</option>
+                                <option>1</option>
+                                <option>2</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-6">
+                            <strong><label class="font-weight-bold required ">Location Retention Period</label></strong>
+                            <select name="retention" id="retention" class="form-control" value="@TempData["retention"]">
+                                <option selected="selected">60</option>
+                                <option>90</option>
+                                <option>120</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-6">
+                            <strong><label class="font-weight-bold required ">Accession Codes*</label></strong>
+                            <textarea name="accession" id="accession" class="form-control">@TempData["accession"]</textarea>
+                            @*@Html.ValidationMessage("CustomError", new { style = "color:red;" })*@
+                            @*@Html.ValidationSummary(true)*@
+                        </div>
+                        <div class="col-lg-6">
+                            <strong><label class="font-weight-bold required ">Touch Codes</label></strong>
+                            <textarea name="touch" id="touch" class="form-control">@TempData["touch"]</textarea>
+                            @*@Html.ValidationMessage("CustomError", new { style = "color:red;" })*@
+                            @*@Html.ValidationSummary(true)*@
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <strong> <asp:Label ID="Label9" runat="server" ForeColor="Red" Text="Label" Visible="False"></asp:Label></strong>
+                        <br />
+                        <div class="col-lg-6">
+                            <input type="submit" value="Add Site" class="btn btn-primary" />
+                            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Home")'">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@if (TempData["retention"] != null && TempData["diagnostic"] != null && @TempData["status"] != null)
+{
+
+    <script>
+            ddl = document.getElementById("retention");
+            ddl.value = @TempData["retention"];
+            ddl = document.getElementById("diagnostic");
+            ddl.value = @TempData["diagnostic"];
+            ddl = document.getElementById("status");
+            ddl.value = "@TempData["status"]";
+    </script>
+    <div class="alert alert-danger" id="success-alert" style="text-align:center;position: absolute;top:0;left:0;width:100%;z-index:9999; margin:0 auto;">
+        <button type="button" class="close" data-dismiss="alert">x</button>
+        <strong> @Html.ValidationMessage("CustomError")</strong>
+
+    </div>
+    <script>
+        $(document).ready(function () {
+
+            $("#success-alert").fadeTo(2000, 500).slideUp(500, function () {
+                $("#success-alert").slideUp(500);
+            });
+           
+        });
+
+
+    </script>
+}
+<script>
+
+    $(document).ready(function () {
+
+        $.validator.addMethod("disjoint", function () {
+            var a = $('#accession').val().replace(/[^a-zA-Z0-9,]/gi,"").split(',');
+            var b = $('#touch').val().replace(/[^a-zA-Z0-9,]/gi, "").split(',');
+            for (var i = 0; i < a.length; i++) {
+                if (b.indexOf(a[i]) != -1)
+                    return false;
+                //Do something
+            }
+
+            return true;
+        }, "A code can either be a touch code or a non toch code. Not both.");
+        $("#myform").validate({
+            errorClass: "my-error-class",
+            rules: {
+                name: "required",
+                servername: "required",
+                path: "required",
+                code: "required",
+                accession: "required",
+                touch: {
+                    disjoint:true
+
+                }
+                //email: {
+                //    required: true,
+                //    email: true
+                //},
+                //phone: {
+                //    required: true,
+                //    number: true
+                //},
+                //url: {
+                //    required: false,
+                //    url: true
+                //},
+                //username: {
+                //    required: true,
+                //    minlength: 6
+                //},
+                //password: {
+                //    required: true,
+                //    minlength: 6
+                //},
+                //confirm_password: {
+                //    required: true,
+                //    minlength: 6,
+                //    equalTo: "#password"
+                //},
+                //agree: "required"
+            },
+            messages: {
+                name: "Required",
+                servername: "Required",
+                path: "Required",
+                code: "Required",
+                accession: "Required"
+                //email: "Please enter a valid email address",
+                //phone: {
+                //    required: "Please enter your phone number",
+                //    number: "Please enter only numeric value"
+                //},
+                //url: {
+                //    url: "Please enter valid url"
+                //},
+                //username: {
+                //    required: "Please enter a username",
+                //    minlength: "Your username must consist of at least 6 characters"
+                //},
+                //password: {
+                //    required: "Please provide a password",
+                //    minlength: "Your password must be at least 6 characters long"
+                //},
+                //confirm_password: {
+                //    required: "Please provide a password",
+                //    minlength: "Your password must be at least 6 characters long",
+                //    equalTo: "Please enter the same password as above"
+                //},
+                //agree: "Please accept our policy"
+            }
+        });
+    });
+
+</script>
+
+
+
+
