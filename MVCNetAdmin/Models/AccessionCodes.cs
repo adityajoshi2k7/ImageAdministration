@@ -76,7 +76,7 @@ namespace MVCNetAdmin.Models
                 }
             }
             else
-                result = "No Locations Found for this code";
+                result = "No Location Found for this code";
 
 
             return result;
