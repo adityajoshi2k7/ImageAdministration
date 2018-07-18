@@ -61,7 +61,7 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-lg-6">
-                            <strong><label class="font-weight-bold required ">Accession Codes*</label></strong>
+                            <strong><label class="font-weight-bold required ">Accession Codes</label></strong>
                             <textarea name="accession" id="accession" class="form-control">@TempData["accession"]</textarea>
                             @*@Html.ValidationMessage("CustomError", new { style = "color:red;" })*@
                             @*@Html.ValidationSummary(true)*@
@@ -121,11 +121,15 @@
         $.validator.addMethod("disjoint", function () {
             var a = $('#accession').val().replace(/[^a-zA-Z0-9,]/gi,"").split(',');
             var b = $('#touch').val().replace(/[^a-zA-Z0-9,]/gi, "").split(',');
-            for (var i = 0; i < a.length; i++) {
-                if (b.indexOf(a[i]) != -1)
-                    return false;
-                //Do something
+            if (a[0] != "" && b[0] != "") {
+                for (var i = 0; i < a.length; i++) {
+                    if (b.indexOf(a[i]) != -1)
+                        return false;
+                    //Do something
+                }
+
             }
+           
 
             return true;
         }, "A code can either be a touch code or a non toch code. Not both.");
@@ -136,7 +140,6 @@
                 servername: "required",
                 path: "required",
                 code: "required",
-                accession: "required",
                 touch: {
                     disjoint:true
 
@@ -173,7 +176,6 @@
                 servername: "Required",
                 path: "Required",
                 code: "Required",
-                accession: "Required"
                 //email: "Please enter a valid email address",
                 //phone: {
                 //    required: "Please enter your phone number",

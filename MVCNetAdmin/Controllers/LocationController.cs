@@ -226,45 +226,51 @@ namespace MVCNetAdmin.Controllers
 
         }
 
-        public ActionResult AddNewSite(string name, string servername, string path, string code, string status, string diagnostic, string retention, string accession, string touch = "")
+        public ActionResult AddNewSite(string name, string servername, string path, string code, string status, string diagnostic, string retention, string accession = "", string touch = "")
         {
             //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@touch");
             System.Diagnostics.Debug.WriteLine(touch + touch == "");
             Regex rgx = new Regex("[^a-zA-Z0-9,]");
             NetAdminContext db = new NetAdminContext();
+            
             Boolean flag = false;
             if (db.Location.Any(o => o.Code.Trim().Equals(code.Trim(), StringComparison.InvariantCultureIgnoreCase)))
                 flag = true;
             List<String> touchList = db.AccessionCodes.Where(o => o.IsTouch == "Y").Select(o => o.Code).ToList();
             //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@touch"+touchList.ToString());
-            String[] nontouchcodes = rgx.Replace(accession.Trim(), "").Split(',');
-            //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@touch" + nontouchcodes.ToString());
-            String errorlog = "";
-            foreach (String c in nontouchcodes)
+            if (accession != "" && accession != null)
             {
-                if (touchList.Contains(c))
+                String[] nontouchcodes = rgx.Replace(accession.Trim(), "").Split(',');
+                //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@touch" + nontouchcodes.ToString());
+                String errorlog = "";
+                foreach (String c in nontouchcodes)
                 {
-                    //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@entered");
-                    errorlog += c + " ";
-                    flag = true;
+                    if (touchList.Contains(c))
+                    {
+                        //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@entered");
+                        errorlog += c + " ";
+                        flag = true;
+                    }
                 }
-            }
-            //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@touch" + errorlog.ToString());
-            if (errorlog != "")
-            {
-                errorlog = String.Join(",", errorlog.Trim().Split(" "));
-                TempData["code"] = code;
-                TempData["name"] = name;
-                TempData["servername"] = servername;
-                TempData["path"] = path;
-                TempData["status"] = status;
-                TempData["diagnostic"] = diagnostic;
-                TempData["retention"] = retention;
-                TempData["accession"] = rgx.Replace(accession.Trim(), "");
-                if (touch != "" && touch != null)
-                    TempData["touch"] = rgx.Replace(touch.Trim(), "");
-                ModelState.AddModelError("CustomError", "The following codes are touch codes and must be added as touch codes for this location" + "\n" + errorlog);
-                return View("AddNewForm");
+                //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@touch" + errorlog.ToString());
+                if (errorlog != "")
+                {
+                    errorlog = String.Join(",", errorlog.Trim().Split(" "));
+                    TempData["code"] = code;
+                    TempData["name"] = name;
+                    TempData["servername"] = servername;
+                    TempData["path"] = path;
+                    TempData["status"] = status;
+                    TempData["diagnostic"] = diagnostic;
+                    TempData["retention"] = retention;
+                    if (accession != "" && accession != null)
+                        TempData["accession"] = rgx.Replace(accession.Trim(), "");
+                    if (touch != "" && touch != null)
+                        TempData["touch"] = rgx.Replace(touch.Trim(), "");
+                    ModelState.AddModelError("CustomError", "The following codes are touch codes and must be added as touch codes for this location" + "\n" + errorlog);
+                    return View("AddNewForm");
+
+                }
 
             }
 
@@ -293,30 +299,32 @@ namespace MVCNetAdmin.Controllers
                 {
                     var result = db.AccessionCodes
                                 .Select(o => o.Code);
-
-                    String[] codes = rgx.Replace(accession.Trim(), "").Split(',');
-                    foreach (String c in codes)
+                    if (accession != "" && accession != null)
                     {
-                        if (!result.Contains(c))
+                        String[] codes = rgx.Replace(accession.Trim(), "").Split(',');
+                        foreach (String c in codes)
                         {
-                            AccessionCodes ac = new AccessionCodes();                    //new regular code only if it does not exist
-                            ac.Code = c;
-                            ac.IsTouch = "N";
-                            ac.CreatedAt = DateTime.Now;
-                            ac.UpdatedAt = DateTime.Now;
-                            //ac.LockVersion = 0;
-                            db.AccessionCodes.Add(ac);
+                            if (!result.Contains(c))
+                            {
+                                AccessionCodes ac = new AccessionCodes();                    //new regular code only if it does not exist
+                                ac.Code = c;
+                                ac.IsTouch = "N";
+                                ac.CreatedAt = DateTime.Now;
+                                ac.UpdatedAt = DateTime.Now;
+                                //ac.LockVersion = 0;
+                                db.AccessionCodes.Add(ac);
+                                db.SaveChanges();
+                            }
+                            AccLoc al = new AccLoc();                                             //location and code mapping
+                            al.LocCode = code.Trim();
+                            al.AccCode = c;
+                            al.CreatedAt = DateTime.Now;
+                            al.UpdatedAt = DateTime.Now;
+                            //al.LockVersion = 0;
+                            db.AccLoc.Add(al);
                             db.SaveChanges();
-                        }
-                        AccLoc al = new AccLoc();                                             //location and code mapping
-                        al.LocCode = code.Trim();
-                        al.AccCode = c;
-                        al.CreatedAt = DateTime.Now;
-                        al.UpdatedAt = DateTime.Now;
-                        //al.LockVersion = 0;
-                        db.AccLoc.Add(al);
-                        db.SaveChanges();
 
+                        }
                     }
                     if (touch != "" && touch != null)
                     {
@@ -367,7 +375,8 @@ namespace MVCNetAdmin.Controllers
             TempData["status"] = status;
             TempData["diagnostic"] = diagnostic;
             TempData["retention"] = retention;
-            TempData["accession"] = rgx.Replace(accession.Trim(), "");
+            if (accession != "" && accession != null)
+                TempData["accession"] = rgx.Replace(accession.Trim(), "");
             if (touch != "" && touch != null)
                 TempData["touch"] = rgx.Replace(touch.Trim(), "");
             ModelState.AddModelError("CustomError", "The Location Already exists. Please change the location code");
