@@ -495,15 +495,23 @@ namespace MVCNetAdmin.Models
                     {
                         Ftp(currloc.DirectoryPath, "accloc.xml", currloc.Host, currloc.Port, currloc.Username, currloc.Passwrd, tempPath + "accloc.xml");
                         Ftp(currloc.DirectoryPath, "accLoc.ini", currloc.Host, currloc.Port, currloc.Username, currloc.Passwrd, tempPath + "accLoc.ini");
-                        File.Copy(tempPath + "accLoc.xml", arcPath + @"\history\" + "accLoc_" + (latestVersion + 1) + ".xml");
-                        File.Copy(tempPath + "accLoc.ini", arcPath + @"\history\" + "accLoc_" + (latestVersion + 1) + ".ini");
+                        if (archive != null)
+                        {
+                            File.Copy(tempPath + "accLoc.xml", arcPath + @"\history\" + "accLoc_" + (latestVersion + 1) + ".xml");
+                            File.Copy(tempPath + "accLoc.ini", arcPath + @"\history\" + "accLoc_" + (latestVersion + 1) + ".ini");
+                        }
+                            
                         File.Delete(tempPath + "accLoc.ini");
                         File.Delete(tempPath + "accLoc.xml");
                     }
                     else
                     {
-                        File.Copy(path + "\\" + "accLoc.xml", arcPath + @"\history\" + "accLoc_" + (latestVersion + 1) + ".xml");
-                        File.Copy(path + "\\" + "accLoc.ini", arcPath + @"\history\" + "accLoc_" + (latestVersion + 1) + ".ini");
+                        if (archive != null)
+                        {
+                            File.Copy(path + "\\" + "accLoc.xml", arcPath + @"\history\" + "accLoc_" + (latestVersion + 1) + ".xml");
+                            File.Copy(path + "\\" + "accLoc.ini", arcPath + @"\history\" + "accLoc_" + (latestVersion + 1) + ".ini");
+                        }
+                            
                     }
 
 
@@ -680,8 +688,12 @@ namespace MVCNetAdmin.Models
 
                         }
                     }
-                    File.Copy(tempPath + "accLoc.xml", arcPath + @"\history\" + "accLoc_" + (latestVersion + 1) + ".xml", true);
-                    File.Copy(tempPath + "accLoc.ini", arcPath + @"\history\" + "accLoc_" + (latestVersion + 1) + ".ini", true);
+                    if (archive != null)
+                    {
+                        File.Copy(tempPath + "accLoc.xml", arcPath + @"\history\" + "accLoc_" + (latestVersion + 1) + ".xml", true);
+                        File.Copy(tempPath + "accLoc.ini", arcPath + @"\history\" + "accLoc_" + (latestVersion + 1) + ".ini", true);
+                    }
+                       
                     File.Delete(tempPath + "accLoc.ini");
                     File.Delete(tempPath + "accLoc.xml");
 
