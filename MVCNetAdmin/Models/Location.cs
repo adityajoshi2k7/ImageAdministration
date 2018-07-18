@@ -311,8 +311,7 @@ namespace MVCNetAdmin.Models
         }
         public ArrayList fetchSite(string a)
         {
-            //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@22");
-            //System.Diagnostics.Debug.WriteLine(a);
+            
             Location loc = db.Location.Where(o => o.Code.Equals(a.Trim())).First();
             var accDetails = from r in db.AccLoc
                              join p in db.AccessionCodes on r.AccCode equals p.Code
@@ -526,8 +525,7 @@ namespace MVCNetAdmin.Models
                 //{
                 try
                 {
-                    //if (ltn.IsFTP == "Y")
-                    //{
+                   
 
                     File.Delete(tempPath + "accLoc.ini");
                     File.Delete(tempPath + "accLoc.xml");
@@ -537,13 +535,7 @@ namespace MVCNetAdmin.Models
 
 
 
-                    //}
-                    //else
-                    //{
-                    //    File.Delete(ltn.Path + "\\" + "accLoc.ini");
-                    //    iniFile = new IniFile(ltn.Path + "\\" + "accLoc.ini");
-                    //    xmlWriter = XmlWriter.Create(ltn.Path + "\\" + "accLoc.xml");
-                    //}
+                   
 
                     //ini file!!!!!!!!not a good choice to use ini files....xmls are used nowadays
                     String names = "";

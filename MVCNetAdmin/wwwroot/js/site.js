@@ -1,4 +1,5 @@
 ﻿// Write your JavaScript code.
+//for sending ajax requests to the controllers
 $(document).on({
     ajaxStart: function () { $('body').addClass("loading"); },
     ajaxStop: function () { $('body').removeClass("loading"); }
