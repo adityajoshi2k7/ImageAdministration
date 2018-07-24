@@ -177,7 +177,15 @@ function removeLocation(a) {
 
 }
 
-
+function viewSelectedSite(path) {
+    if (path=="") {
+        alert("Please select a site");
+        return false;
+    }
+    $("#myModal").modal('show');
+    $("#topic").text("Copy the below path and open it in a new browser tab or windows explorer.");
+    $('#listOfCodes').html(path);
+}
 
 
 function convertToFTP() {
@@ -273,34 +281,7 @@ function pingSelectedSite(server, host) {
 
 }
 
-function viewSelectedSite(path, a) {
-    if (path == "") {
-        alert("Please select a site");
-        return false;
-    }
-    a.href = a.href.split("?")[0] + "?path=" + path;
 
-    return true;
-    //$.ajax({
-
-    //    type: "post",
-    //    url: "/location/viewselectedsite?path=" + path.trim(),
-    //    contenttype: "application/json; charset=utf-8",
-    //    datatype: "text",
-    //    success: function (data) {
-    //        if (data != "") {
-    //            $("#mymodal").modal('show');
-    //            $("#topic").text("error");
-    //            $('#listofcodes').html(data);
-    //        }
-
-    //    },
-    //    failure: function (response) {
-    //        alert('error');
-    //    }
-    //});
-
-}
 function eidtLocation(a) {
     if ($('#sites').val() == undefined) {
         alert("Please select a site");

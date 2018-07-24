@@ -169,9 +169,7 @@
                     <div class="col-lg-6">
                         <a href="#" onclick="pingAllSites()">Ping All Sites</a>
                     </div>
-                    @*<div class="col-lg-6">
-                            <a onclick="window.open('file:///C:/Cranford/', '_blank');">view selected site</a>
-                        </div>*@
+                   
                 </div>
                 <div class="row" id="ftprow" style="display:none;">
                     <div class="col-lg-6">
@@ -181,7 +179,9 @@
 
                     </div>
 
-
+                    <div class="col-lg-6">
+            <a onclick="viewSelectedSite($('#path').val());" href="#">View Selected Site</a>
+        </div>
 
 
                 </div>
