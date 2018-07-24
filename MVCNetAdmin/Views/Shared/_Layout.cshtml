@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - NetAdmin</title>
 
-    <environment include="Development">
+    <environment include="Development,Staging,Test">
         <script src="~/lib/jquery/dist/jquery.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
@@ -14,7 +14,7 @@
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/css/site.css" />
     </environment>
-    <environment exclude="Development">
+    <environment exclude="Development,Staging,Test">
         <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
               asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
@@ -38,7 +38,19 @@
 
 
                         <a href="#" class="pull-left"><img src="~/images/labcorp.png" style="height:50px;width:130px;"></a>
-                        <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand pull-left">NetAdmin</a>
+
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand pull-left">
+                            NetAdmin
+                            <environment names="Development">
+                                <span style="font-size: 10px;" >Development</span>
+                            </environment>
+                            <environment names="Test">
+                                <span  style="font-size: 10px;">Test</span>
+                            </environment>
+                            <environment names="Staging">
+                                <span  style="font-size: 10px;">Staging</span>
+                            </environment>
+                        </a>
                     </div>
                 </div>
                 <div class="col-md-4 ">
@@ -93,7 +105,7 @@
         <environment include="Development">
         
     </environment>
-        <environment exclude="Development">
+        <environment exclude="Development,Staging,Test">
             <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
                     asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
                     asp-fallback-test="window.jQuery"

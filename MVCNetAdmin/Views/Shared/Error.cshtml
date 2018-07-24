@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Error";
 }
-
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnv
 <h1 class="text-danger">Error.</h1>
 <h2 class="text-danger">An error occurred while processing your request.</h2>
 
@@ -13,7 +13,7 @@
     </p>
 }
 
-<h3>Development Mode</h3>
+<h3>Environment: @hostingEnv.EnvironmentName </h3>
 <p>
     Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
 </p>
