@@ -78,7 +78,7 @@ namespace MVCNetAdmin.Models
                 db.Database.ExecuteSqlCommand("delete from Location");
 
 
-                string fullpath = xmlpath + @"\accLoc.xml";
+                string fullpath = xmlpath ;
                 System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@");
                 if (!(File.Exists(fullpath)))
                 {
