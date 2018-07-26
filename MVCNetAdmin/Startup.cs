@@ -38,6 +38,7 @@ namespace MVCNetAdmin
             }
 
             app.UseStaticFiles();
+            app.UseMiddleware<StackifyMiddleware.RequestTracerMiddleware>();
 
             app.UseMvc(routes =>
             {
