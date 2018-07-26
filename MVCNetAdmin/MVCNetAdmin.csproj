@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\css\style.css" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="abc.zip" />
     <None Remove="test.xml" />
   </ItemGroup>
