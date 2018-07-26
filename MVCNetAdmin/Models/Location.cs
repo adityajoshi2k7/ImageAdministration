@@ -406,7 +406,7 @@ namespace MVCNetAdmin.Models
                         }
                     }
                     iniFile.WriteSetting("SiteStatus", "InactiveSites", string.Join(",", from item in inactiveSites select item));
-                    iniFile.WriteSetting("TouchCodes", "Touch", string.Join(",", from item in AccessionCodes.GetTouchCodes() select item.Code));
+                    iniFile.WriteSetting("TouchCodes", "Touch", string.Join(",", from item in Location.GetTouchCodes() select item.Code));
                     names = String.Join(",", names.Trim().Split(" "));
                     iniFile.WriteSetting("Labs", "LabList", names);
 
@@ -486,7 +486,7 @@ namespace MVCNetAdmin.Models
                         foreach (AccLoc code in acl)
                         {
                             xmlWriter.WriteStartElement("accession");
-                            if (AccessionCodes.CheckIfTouch(code.AccCode))
+                            if (AccessionCodes.CheckIfTouch(code.AccCode,db))
                                 xmlWriter.WriteAttributeString("isTouch", "Y");
                             else
                                 xmlWriter.WriteAttributeString("isTouch", "N");
@@ -530,12 +530,12 @@ namespace MVCNetAdmin.Models
 
                     db.SaveChanges();
                     return "Config files published successfully. Please check the files at the location path(s).";
-                }
-                catch (Exception e)
-                {
-                    return "Something went wrong.Please try later." + "\n" + "Error Message: " + e.Message;
-                }
             }
+                catch (Exception e)
+            {
+                return "Something went wrong.Please try later." + "\n" + "Error Message: " + e.Message;
+            }
+        }
             else   //publishAll
             {
                 //List<Location> locations = db.Location.Where(o => o.LockVersion != -1).ToList();
@@ -577,7 +577,7 @@ namespace MVCNetAdmin.Models
                         }
                     }
                     iniFile.WriteSetting("SiteStatus", "InactiveSites", string.Join(",", from item in inactiveSites select item));
-                    iniFile.WriteSetting("TouchCodes", "Touch", string.Join(",", from item in AccessionCodes.GetTouchCodes() select item.Code));
+                    iniFile.WriteSetting("TouchCodes", "Touch", string.Join(",", from item in Location.GetTouchCodes() select item.Code));
                     names = String.Join(",", names.Trim().Split(" "));
                     iniFile.WriteSetting("Labs", "LabList", names);
 
@@ -658,7 +658,7 @@ namespace MVCNetAdmin.Models
                         foreach (AccLoc code in acl)
                         {
                             xmlWriter.WriteStartElement("accession");
-                            if (AccessionCodes.CheckIfTouch(code.AccCode))
+                            if (AccessionCodes.CheckIfTouch(code.AccCode,db))
                                 xmlWriter.WriteAttributeString("isTouch", "Y");
                             else
                                 xmlWriter.WriteAttributeString("isTouch", "N");
@@ -722,6 +722,14 @@ namespace MVCNetAdmin.Models
                 else
                     return "Config files published successfully." + "\n" + "There were errors while publishing at some sites. Please refer to the errors below:" + "\n" + "\n" + errorLog;
             }
+
+        }
+
+        public static List<AccessionCodes> GetTouchCodes()
+        {
+
+            List<AccessionCodes> touchCodeList = db.AccessionCodes.Where(o => o.IsTouch.Trim() == "Y").ToList();
+            return touchCodeList;
 
         }
 

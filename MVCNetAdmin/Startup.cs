@@ -21,7 +21,7 @@ namespace MVCNetAdmin
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)  //services for rest other envs except staging....can have a separate private method for common services
         {
           
             
@@ -33,7 +33,19 @@ namespace MVCNetAdmin
             });
             services.AddMvc();
         }
+        public void ConfigureStagingServices(IServiceCollection services)   //services for staging environment.
+        {
 
+           
+            services.AddDbContext<NetAdminContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("NetAdminDBStaging"));
+
+                options.EnableSensitiveDataLogging();
+            });
+            services.AddMvc();
+
+        }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {

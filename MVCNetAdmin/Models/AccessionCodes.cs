@@ -88,7 +88,7 @@ namespace MVCNetAdmin.Models
             return result;
         }
 
-        internal static bool CheckIfTouch(string accCode)
+        internal static bool CheckIfTouch(string accCode,NetAdminContext db)
         {
             AccessionCodes ac= db.AccessionCodes.Where(o => o.Code == accCode).FirstOrDefault();
             System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@"+ accCode);
