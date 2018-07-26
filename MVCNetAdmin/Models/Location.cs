@@ -796,14 +796,14 @@ namespace MVCNetAdmin.Models
             //}
             db.SaveChanges();
 
-            //removing the unused codes
-            List<String> accLocLeft = db.AccLoc.Select(o => o.AccCode).ToList();
-            List<AccessionCodes> toBeDel = db.AccessionCodes.Where(o => !accLocLeft.Contains(o.Code)).ToList();
-            foreach (AccessionCodes ac in toBeDel)
-            {
-                db.AccessionCodes.Remove(ac);
-                db.SaveChanges();
-            }
+            //removing the unused codes    NOW HANDLED BY TRIGGER
+            //List<String> accLocLeft = db.AccLoc.Select(o => o.AccCode).ToList();
+            //List<AccessionCodes> toBeDel = db.AccessionCodes.Where(o => !accLocLeft.Contains(o.Code)).ToList();
+            //foreach (AccessionCodes ac in toBeDel)
+            //{
+            //    db.AccessionCodes.Remove(ac);
+            //    db.SaveChanges();
+            //}
 
 
         }
