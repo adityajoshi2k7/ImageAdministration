@@ -5,11 +5,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MVCNetAdmin.Models;
-
+using Microsoft.Extensions.DependencyInjection;
 namespace MVCNetAdmin.Controllers
 {
     public class HomeController : Controller
     {
+        static NetAdminContext db;
+
+        public HomeController(NetAdminContext context)
+        {
+
+            db = context;
+        }
         public IActionResult Index()
         {
 
@@ -17,7 +24,7 @@ namespace MVCNetAdmin.Controllers
             if (TempData["msg"] != null)
                 message = TempData["msg"].ToString();
 
-            Location loc = new Location();
+            Location loc = new Location(db);
             List<Location> result = loc.FetchAllLocations();
             ViewData["locations"] = result;
             TempData["msg"] = message;

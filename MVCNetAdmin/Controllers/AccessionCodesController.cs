@@ -12,24 +12,32 @@ namespace MVCNetAdmin.Controllers
 {
     public class AccessionCodesController : Controller
     {
+
+        static NetAdminContext db;
+
+        public AccessionCodesController(NetAdminContext context)
+        {
+           
+            db = context;
+        }
         // GET: AccessionCodes/Create
         public String ViewTouchCodes()
         {
-            AccessionCodes ac = new AccessionCodes();
+            AccessionCodes ac = new AccessionCodes(db);
             String codes = ac.ViewTouchCodes();
             return codes;
         }
 
         public String ViewALLCodes()
         {
-            AccessionCodes ac = new AccessionCodes();
+            AccessionCodes ac = new AccessionCodes(db);
             String codes = ac.ViewALLCodes();
             return codes;
         }
 
         public String SearchCode(string code)
         {
-            AccessionCodes ac = new AccessionCodes();
+            AccessionCodes ac = new AccessionCodes(db);
             String locations = ac.SearchCode(code);
             return locations;
         }
@@ -38,7 +46,7 @@ namespace MVCNetAdmin.Controllers
         
          public ActionResult AddRemove()
         {
-            NetAdminContext db = new NetAdminContext();
+           
             List<Location> lc = db.Location.ToList();
             TempData["locations"] = lc;
             return View();
@@ -46,7 +54,7 @@ namespace MVCNetAdmin.Controllers
         
         public ActionResult AddRemoveCode(string site, string accession, string type, string isTouch = "")
         {
-            NetAdminContext db = new NetAdminContext();
+            
             Regex rgx = new Regex("[^a-zA-Z0-9,]");
             var result = db.AccessionCodes                                             //all existing accession codes
                                .Select(o => o.Code);
@@ -70,7 +78,7 @@ namespace MVCNetAdmin.Controllers
                     {
                         if (!result.Contains(c))
                         {
-                            AccessionCodes ac = new AccessionCodes();                    //new regular code only if it does not exist
+                            AccessionCodes ac = new AccessionCodes(db);                    //new regular code only if it does not exist
                             ac.Code = c;
                             if (isTouch != "")
                                 ac.IsTouch = "Y";
@@ -81,7 +89,7 @@ namespace MVCNetAdmin.Controllers
                             //ac.LockVersion = 0;
                             db.AccessionCodes.Add(ac);
                             db.SaveChanges();
-                            AccLoc al = new AccLoc();                                             //location and code mapping
+                            AccLoc al = new AccLoc(db);                                             //location and code mapping
                             al.LocCode = site.Trim();
                             al.AccCode = c;
                             al.CreatedAt = DateTime.Now;
@@ -113,7 +121,7 @@ namespace MVCNetAdmin.Controllers
                                     db.SaveChanges();
                                 }
                             }
-                            AccLoc al = new AccLoc();                                             //location and code mapping
+                            AccLoc al = new AccLoc(db);                                             //location and code mapping
                             al.LocCode = site.Trim();
                             al.AccCode = c;
                             al.CreatedAt = DateTime.Now;

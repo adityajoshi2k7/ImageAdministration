@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MVCNetAdmin.Models;
 
 namespace MVCNetAdmin
 {
@@ -21,6 +23,14 @@ namespace MVCNetAdmin
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+          
+            
+            services.AddDbContext<NetAdminContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("NetAdminDB"));
+          
+                options.EnableSensitiveDataLogging();
+            });
             services.AddMvc();
         }
 

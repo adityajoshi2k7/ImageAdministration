@@ -18,6 +18,13 @@ namespace MVCNetAdmin.Controllers
 {
     public class LocationController : Controller
     {
+        static NetAdminContext db;
+
+        public LocationController(NetAdminContext context)
+        {
+
+            db = context;
+        }
         public IActionResult Index()
         {
             return View();
@@ -33,7 +40,7 @@ namespace MVCNetAdmin.Controllers
 
             System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@controller");
             System.Diagnostics.Debug.WriteLine(expression);
-            Location loc = new Location();
+            Location loc = new Location(db);
             ArrayList al = loc.ViewSiteDetails(expression);
             return Json(al);
 
@@ -41,7 +48,7 @@ namespace MVCNetAdmin.Controllers
 
         public IActionResult EditForm(String code)
         {
-            Location loc = new Location();
+            Location loc = new Location(db);
             ArrayList al = loc.fetchSite(code);
             System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@controller");
             System.Diagnostics.Debug.WriteLine(al[0]);
@@ -59,7 +66,7 @@ namespace MVCNetAdmin.Controllers
         {
 
 
-            Location loc = new Location();
+            Location loc = new Location(db);
             String errorlog = loc.PingAllSites();
             if (errorlog == "")
                 return "All Sites successfully pinged.";
@@ -74,7 +81,7 @@ namespace MVCNetAdmin.Controllers
         {
 
 
-            Location loc = new Location();
+            Location loc = new Location(db);
             String errorlog = loc.VerifyAll();
             return errorlog;
 
@@ -84,7 +91,7 @@ namespace MVCNetAdmin.Controllers
         {
 
 
-            Location loc = new Location();
+            Location loc = new Location(db);
             String errorlog = loc.VerifySelected(code);
             return errorlog;
 
@@ -96,7 +103,7 @@ namespace MVCNetAdmin.Controllers
         {
 
 
-            Location loc = new Location();
+            Location loc = new Location(db);
             String errorlog = loc.PingSelectedSite(server);
             return errorlog;
 
@@ -106,7 +113,7 @@ namespace MVCNetAdmin.Controllers
         {
 
 
-            Location loc = new Location();
+            Location loc = new Location(db);
             loc.RemoveLocation(site);
             TempData["msg"] = "The site has been deleted successfully";
             return RedirectToAction("Index", "Home");
@@ -125,7 +132,7 @@ namespace MVCNetAdmin.Controllers
 
         public ActionResult ConvertToFTPForm(string code)
         {
-            NetAdminContext db = new NetAdminContext();
+           
             Location loc = db.Location.Where(o => o.Code == code).First();
             TempData["name"] = loc.Name;
             TempData["code"] = loc.Code;
@@ -145,8 +152,8 @@ namespace MVCNetAdmin.Controllers
 
         public string RecoverDBFinal(string path)
         {
-           
-               return  Location.Recover(path);
+            Location loc = new Location(db);
+            return loc.Recover(path);
                
         }
 
@@ -155,7 +162,7 @@ namespace MVCNetAdmin.Controllers
 
         public ActionResult ConvertToFTP(string code, string host, string username, string password, string port, string directory = "")
         {
-            NetAdminContext db = new NetAdminContext();
+          
             Location loc = db.Location.Where(o => o.Code == code).First();
             if (username != null)
                 loc.Username = username.Trim();
@@ -181,14 +188,13 @@ namespace MVCNetAdmin.Controllers
             System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@username" + (username == null));
             System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@username" + (password == null) + (password == ""));
             System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@touchffgvg");
-            NetAdminContext db = new NetAdminContext();
             Boolean flag = false;
             if (db.Location.Any(o => o.Code.Trim().Equals(code.Trim(), StringComparison.InvariantCultureIgnoreCase)))
                 flag = true;
             if (!flag)
             {
                 System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@controller");
-                Location l = new Location();
+                Location l = new Location(db);
                 l.Name = name.Trim();
                 l.Code = code.Trim();
                 l.Host = host.Trim();
@@ -231,7 +237,6 @@ namespace MVCNetAdmin.Controllers
             //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@touch");
             System.Diagnostics.Debug.WriteLine(touch + touch == "");
             Regex rgx = new Regex("[^a-zA-Z0-9,]");
-            NetAdminContext db = new NetAdminContext();
             
             Boolean flag = false;
             if (db.Location.Any(o => o.Code.Trim().Equals(code.Trim(), StringComparison.InvariantCultureIgnoreCase)))
@@ -278,7 +283,7 @@ namespace MVCNetAdmin.Controllers
 
             if (!flag)
             {
-                Location l = new Location();
+                Location l = new Location(db);
                 l.Name = name.Trim();
                 l.Server = servername.Trim();
                 l.Path = path.Trim();
@@ -306,7 +311,7 @@ namespace MVCNetAdmin.Controllers
                         {
                             if (!result.Contains(c))
                             {
-                                AccessionCodes ac = new AccessionCodes();                    //new regular code only if it does not exist
+                                AccessionCodes ac = new AccessionCodes(db);                    //new regular code only if it does not exist
                                 ac.Code = c;
                                 ac.IsTouch = "N";
                                 ac.CreatedAt = DateTime.Now;
@@ -315,7 +320,7 @@ namespace MVCNetAdmin.Controllers
                                 db.AccessionCodes.Add(ac);
                                 db.SaveChanges();
                             }
-                            AccLoc al = new AccLoc();                                             //location and code mapping
+                            AccLoc al = new AccLoc(db);                                             //location and code mapping
                             al.LocCode = code.Trim();
                             al.AccCode = c;
                             al.CreatedAt = DateTime.Now;
@@ -333,7 +338,7 @@ namespace MVCNetAdmin.Controllers
                         {
                             if (!result.Contains(c))
                             {
-                                AccessionCodes ac = new AccessionCodes();          //new touch code
+                                AccessionCodes ac = new AccessionCodes(db);          //new touch code
                                 ac.Code = c;
                                 ac.IsTouch = "Y";
                                 ac.CreatedAt = DateTime.Now;
@@ -349,7 +354,7 @@ namespace MVCNetAdmin.Controllers
                                 old.UpdatedAt = DateTime.Now;
                                 db.SaveChanges();
                             }
-                            AccLoc al = new AccLoc();
+                            AccLoc al = new AccLoc(db);
                             al.LocCode = code.Trim();
                             al.AccCode = c;
                             al.CreatedAt = DateTime.Now;
@@ -394,7 +399,6 @@ namespace MVCNetAdmin.Controllers
             System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@controller");
             System.Diagnostics.Debug.WriteLine(code);
             System.Diagnostics.Debug.WriteLine(name);
-            NetAdminContext db = new NetAdminContext();
             var result = db.Location.Where(o => o.Code.Trim() == code.Trim()).First();
             if (result != null)
             {
@@ -428,7 +432,7 @@ namespace MVCNetAdmin.Controllers
 
         public String PublishSelectedOrALL(string path = "", string code = "")
         {
-            Location loc = new Location();
+            Location loc = new Location(db);
             String message = loc.PublishSelectedOrALL(path, code);
 
             return message;

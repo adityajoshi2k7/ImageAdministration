@@ -9,19 +9,22 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace MVCNetAdmin.Models
 {
     public partial class Location
     {
-        NetAdminContext db = new NetAdminContext();
+        static NetAdminContext db;
+        public Location(NetAdminContext context)
+        {
+            db = context;
+            AccLoc = new HashSet<AccLoc>();
+        }
 
-        static NetAdminContext db2 = new NetAdminContext();
         public Location()
         {
-
-            AccLoc = new HashSet<AccLoc>();
         }
 
         public string Name { get; set; }
@@ -47,14 +50,14 @@ namespace MVCNetAdmin.Models
         public int ConfigFileVersion { get; set; }
         public ICollection<AccLoc> AccLoc { get; set; }
 
-        static List<String> ListOfCodes(Location l)
+         static List<String>  ListOfCodes(Location l)
         {
-            List<String> codeList = db2.AccLoc.Where(o => o.LocCode == l.Code).Select(o => o.AccCode).ToList();
+            List<String> codeList = db.AccLoc.Where(o => o.LocCode == l.Code).Select(o => o.AccCode).ToList();
             return codeList;
 
         }
 
-        public List<Location> FetchAllLocations()   //View Touch Codes
+        public  List<Location> FetchAllLocations()   //View Touch Codes
         {
             List<Location> al = new List<Location>();
             var result = db.Location.Select(o => new { o.Code, o.Name, o.IsFTP });
@@ -68,11 +71,11 @@ namespace MVCNetAdmin.Models
             }
             return al;
         }
-        internal static string Recover(string xmlpath)
+        internal  string Recover(string xmlpath)
         {
             try
             {
-                NetAdminContext db = new NetAdminContext();
+               
                 db.Database.ExecuteSqlCommand("delete from AccLoc");
                 db.Database.ExecuteSqlCommand("delete from AccessionCodes");
                 db.Database.ExecuteSqlCommand("delete from Location");

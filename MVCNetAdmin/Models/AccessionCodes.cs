@@ -4,14 +4,20 @@ using System.Linq;
 
 namespace MVCNetAdmin.Models
 {
+
+
     public partial class AccessionCodes
     {
-        NetAdminContext db = new NetAdminContext();
-        static NetAdminContext db2 = new NetAdminContext();
-        public AccessionCodes()
+        static NetAdminContext db;
+
+        public AccessionCodes(NetAdminContext context)
         {
             AccLoc = new HashSet<AccLoc>();
+            db = context;
+        }
 
+        public AccessionCodes()
+        {
         }
 
         public string Code { get; set; }
@@ -40,7 +46,7 @@ namespace MVCNetAdmin.Models
         public static List<AccessionCodes> GetTouchCodes()
         {
 
-            List<AccessionCodes> touchCodeList = db2.AccessionCodes.Where(o => o.IsTouch.Trim() == "Y").ToList();
+            List<AccessionCodes> touchCodeList = db.AccessionCodes.Where(o => o.IsTouch.Trim() == "Y").ToList();
             return touchCodeList;
 
         }
@@ -84,7 +90,7 @@ namespace MVCNetAdmin.Models
 
         internal static bool CheckIfTouch(string accCode)
         {
-            AccessionCodes ac= db2.AccessionCodes.Where(o => o.Code == accCode).FirstOrDefault();
+            AccessionCodes ac= db.AccessionCodes.Where(o => o.Code == accCode).FirstOrDefault();
             System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@"+ accCode);
             System.Diagnostics.Debug.WriteLine(ac.IsTouch);
             if (ac != null)

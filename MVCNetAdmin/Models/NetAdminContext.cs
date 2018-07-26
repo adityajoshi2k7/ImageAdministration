@@ -11,15 +11,20 @@ namespace MVCNetAdmin.Models
         public virtual DbSet<Location> Location { get; set; }
 
        
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//        {
+////            if (!optionsBuilder.IsConfigured)
+////            {
+////#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+////                optionsBuilder.UseSqlServer(@"Server=5CG71213VB\ADITYA;;Database=NetAdmin;Trusted_Connection=True;");
+////                optionsBuilder.EnableSensitiveDataLogging();
+////            }
+//        }
+        public NetAdminContext(DbContextOptions<NetAdminContext> options): base(options)
         {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer(@"Server=5CG71213VB\ADITYA;;Database=NetAdmin;Trusted_Connection=True;");
-                optionsBuilder.EnableSensitiveDataLogging();
-            }
+
         }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
