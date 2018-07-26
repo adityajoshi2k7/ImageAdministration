@@ -132,55 +132,55 @@
         <div class="panel panel-default">
             <div class="panel-heading font-weight-bold" style="text-align:center;"><strong>Sites</strong></div>
             <div class="panel-body">
-                <div class="row">
+                <div class="row list-group" >
                     <div class="col-lg-6">
-                        <a asp-controller="Location" asp-action="AddNewForm">
+                        <a asp-controller="Location" asp-action="AddNewForm" class="list-group-item list-group-item-action">
                             Add New Site
                         </a>
 
                     </div>
                     <div class="col-lg-6">
-                        <a asp-controller="Location" asp-action="EditForm" onclick="return eidtLocation(this);">
+                        <a asp-controller="Location" asp-action="EditForm" onclick="return eidtLocation(this);" class="list-group-item list-group-item-action">
                             Edit Selected Site
                         </a>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row list-group">
                     <div class="col-lg-6">
                         <a asp-controller="Location"
                            asp-action="RemoveLocation"
-                           onclick="return removeLocation(this);">
+                           onclick="return removeLocation(this);" class="list-group-item list-group-item-action">
                             Remove Selected Site
                         </a>
 
                     </div>
                     <div class="col-lg-6">
-                        <a href="#" onclick="pingSelectedSite($('#server').val(),$('#host').val())">Ping Selected Site</a>
+                        <a href="#" onclick="pingSelectedSite($('#server').val(),$('#host').val())" class="list-group-item list-group-item-action">Ping Selected Site</a>
 
                     </div>
 
                 </div>
-                <div class="row">
+                <div class="row list-group">
                     <div class="col-lg-6">
-                        <a asp-controller="Location" asp-action="AddNewFTPForm">
+                        <a asp-controller="Location" asp-action="AddNewFTPForm" class="list-group-item list-group-item-action">
                             Add New FTP Site
                         </a>
                     </div>
                     <div class="col-lg-6">
-                        <a href="#" onclick="pingAllSites()">Ping All Sites</a>
+                        <a href="#" onclick="pingAllSites()" class="list-group-item list-group-item-action">Ping All Sites</a>
                     </div>
                    
                 </div>
-                <div class="row" id="ftprow" style="display:none;">
+                <div class="row list-group" id="ftprow" style="display:none;">
                     <div class="col-lg-6">
-                        <a onclick="convertToFTP();" data-toggle="modal" data-target="#partialmodal" href="#">
+                        <a onclick="convertToFTP();" data-toggle="modal" data-target="#partialmodal" href="#" class="list-group-item list-group-item-action">
                             Convert to FTP
                         </a>
 
                     </div>
 
                     <div class="col-lg-6">
-            <a onclick="viewSelectedSite($('#path').val());" href="#">View Selected Site</a>
+            <a onclick="viewSelectedSite($('#path').val());" href="#" class="list-group-item list-group-item-action">View Selected Site</a>
         </div>
 
 
@@ -192,23 +192,23 @@
             <div class="panel-body">
 
 
-                <div class="row">
-                    <div class="col-lg-6">
-                        <a href="#" onclick="viewAllCodes()">View All Accession Codes</a>
+                <div class="row list-group" >
+                    <div class="col-lg-6" >
+                        <a href="#" onclick="viewAllCodes()" class="list-group-item list-group-item-action">View All Accession Codes</a>
 
                     </div>
                     <div class="col-lg-6">
-                        <a href="#" onclick="$('#myModalSearch').modal('show');">Find Accession Code</a>
+                        <a href="#" onclick="$('#myModalSearch').modal('show');" class="list-group-item list-group-item-action">Find Accession Code</a>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row list-group">
                     <div class="col-lg-6">
-                        <a href="#" onclick="viewTouch();">View Touch Codes</a>
+                        <a href="#" onclick="viewTouch();" class="list-group-item list-group-item-action">View Touch Codes</a>
 
                     </div>
                     <div class="col-lg-6">
                         <a asp-controller="AccessionCodes"
-                           asp-action="AddRemove">
+                           asp-action="AddRemove" class="list-group-item list-group-item-action">
                             Add / Delete Code
                         </a>
                     </div>
@@ -245,32 +245,32 @@
             <div class="panel-heading font-weight-bold" style="text-align:center;"><strong>Config Files</strong></div>
             <div class="panel-body">
 
-                <div class="row">
+                <div class="row list-group">
                     <div class="col-lg-6">
-                        <a href="#" onclick="publishSelectedOrALL('single');">Publish At Selected Site</a>
+                        <a href="#" onclick="publishSelectedOrALL('single');" class="list-group-item list-group-item-action">Publish At Selected Site</a>
 
                     </div>
                     <div class="col-lg-6">
 
-                        <a href="#" onclick="publishSelectedOrALL('all');">Publish At All Sites</a>
-                    </div>
-                </div>
-
-
-                <div class="row">
-                    <div class="col-lg-6">
-                        <a href="#" onclick="verifyAll();">Verify At All Sites</a>
-
-                    </div>
-                    <div class="col-lg-6">
-
-                        <a href="#" onclick="verifySelected();">Verify At Selected Site</a>
+                        <a href="#" onclick="publishSelectedOrALL('all');" class="list-group-item list-group-item-action">Publish At All Sites</a>
                     </div>
                 </div>
 
-                <div class="row">
+
+                <div class="row list-group">
                     <div class="col-lg-6">
-                        <a onclick="recoverDBForm();" data-toggle="modal" data-target="#partialmodal" href="#">
+                        <a href="#" onclick="verifyAll();" class="list-group-item list-group-item-action">Verify At All Sites</a>
+
+                    </div>
+                    <div class="col-lg-6">
+
+                        <a href="#" onclick="verifySelected();" class="list-group-item list-group-item-action">Verify At Selected Site</a>
+                    </div>
+                </div>
+
+                <div class="row list-group">
+                    <div class="col-lg-6">
+                        <a onclick="recoverDBForm();" data-toggle="modal" data-target="#partialmodal" href="#" class="list-group-item list-group-item-action">
                             Recover Database
                         </a>
 
