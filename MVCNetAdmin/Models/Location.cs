@@ -115,8 +115,13 @@ namespace MVCNetAdmin.Models
                             l.Port = location.Element("port").Value;
                         if (location.Element("directory") != null && location.Element("directory").Value.Trim() != "")
                             l.DirectoryPath = location.Element("directory").Value;
-                        l.IsFTP = location.Element("isFTP").Value;
-                        l.ConfigFileVersion = Convert.ToInt32(location.Element("configfileversion").Value);
+                        if (location.Element("isFTP") != null && location.Element("isFTP").Value.Trim() != "")
+                            l.IsFTP = location.Element("isFTP").Value;
+                        else
+                            l.IsFTP = "N";
+
+                        if (location.Element("configfileversion") != null && location.Element("configfileversion").Value.Trim() != "")
+                            l.ConfigFileVersion = Convert.ToInt32(location.Element("configfileversion").Value);
 
 
                         l.CreatedAt = DateTime.Now;
@@ -126,30 +131,33 @@ namespace MVCNetAdmin.Models
                         if (location.Elements("accession") != null)
                         {
 
-                            foreach (var ac in location.Elements("accession"))
+                            foreach (var ac in location.Elements("accession").GroupBy(e => e.Value).Select(x => x.First()))
                             {
 
-
-                                AccessionCodes existing = db.AccessionCodes.Where(o => o.Code == ac.Value.Trim()).FirstOrDefault();
-                                if (existing == null)
+                                if(ac!=null && ac.Value.Trim() != "")
                                 {
-                                    AccessionCodes acode = new AccessionCodes();
-                                    acode.Code = ac.Value.Trim();
-                                    acode.IsTouch = ac.Attribute("isTouch").Value.Trim();
-                                    acode.CreatedAt = DateTime.Now;
-                                    acode.UpdatedAt = DateTime.Now;
-                                    db.AccessionCodes.Add(acode);
+                                    AccessionCodes existing = db.AccessionCodes.Where(o => o.Code == ac.Value.Trim()).FirstOrDefault();
+                                    if (existing == null)
+                                    {
+                                        AccessionCodes acode = new AccessionCodes();
+                                        acode.Code = ac.Value.Trim();
+                                        acode.IsTouch = ac.Attribute("isTouch")==null?"N": ac.Attribute("isTouch").Value.Trim();
+                                        acode.CreatedAt = DateTime.Now;
+                                        acode.UpdatedAt = DateTime.Now;
+                                        db.AccessionCodes.Add(acode);
+                                        db.SaveChanges();
+                                    }
+
+                                    AccLoc acl = new AccLoc();
+                                    acl.LocCode = location.Element("code").Value;
+                                    acl.AccCode = ac.Value;
+                                    acl.CreatedAt = DateTime.Now;
+                                    acl.UpdatedAt = DateTime.Now;
+                                    db.AccLoc.Add(acl);
+
                                     db.SaveChanges();
                                 }
-
-                                AccLoc acl = new AccLoc();
-                                acl.LocCode = location.Element("code").Value;
-                                acl.AccCode = ac.Value;
-                                acl.CreatedAt = DateTime.Now;
-                                acl.UpdatedAt = DateTime.Now;
-                                db.AccLoc.Add(acl);
-
-                                db.SaveChanges();
+                                
                             }
 
                         }
@@ -727,7 +735,7 @@ namespace MVCNetAdmin.Models
                 Ping myPing = new Ping();
                 try
                 {
-                    if (l.IsFTP == "N")
+                    if (l.IsFTP == "N" ||l.IsFTP==null)
                         reply = myPing.Send(l.Server.ToString(), 200);  //200ms timeout 
                     else
                         reply = myPing.Send(l.Host.ToString(), 200);
