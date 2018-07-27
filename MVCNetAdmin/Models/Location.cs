@@ -481,23 +481,37 @@ namespace MVCNetAdmin.Models
 
 
 
-                        List<AccLoc> acl = db.AccLoc.Where(o => o.LocCode == loc.Code).ToList();
+                         //List<AccLoc> acl = db.AccLoc.Where(o => o.LocCode == loc.Code).ToList();
 
-                        foreach (AccLoc code in acl)
+
+
+
+
+                        var accDetails = from r in db.AccLoc
+                                         join p in db.AccessionCodes on r.AccCode equals p.Code
+                                         where r.LocCode == loc.Code
+                                         select new { code = r.AccCode, isTouch = p.IsTouch };
+
+
+
+
+
+
+                        foreach (var code in accDetails)
                         {
                             xmlWriter.WriteStartElement("accession");
-                            if (AccessionCodes.CheckIfTouch(code.AccCode,db))
-                                xmlWriter.WriteAttributeString("isTouch", "Y");
-                            else
-                                xmlWriter.WriteAttributeString("isTouch", "N");
+                            //if (AccessionCodes.CheckIfTouch(code.AccCode,db))
+                                xmlWriter.WriteAttributeString("isTouch", code.isTouch.Trim());
+                            //else
+                            //    xmlWriter.WriteAttributeString("isTouch", "N");
 
 
-                            xmlWriter.WriteString(code.AccCode);
+                            xmlWriter.WriteString(code.code);
                             xmlWriter.WriteEndElement();
 
                         }
                         xmlWriter.WriteEndElement(); //for location
-
+ 
                     }
                     xmlWriter.WriteEndElement(); //for locationlist
                     xmlWriter.WriteEndDocument();
@@ -653,16 +667,21 @@ namespace MVCNetAdmin.Models
 
 
 
-                        List<AccLoc> acl = db.AccLoc.Where(o => o.LocCode == loc.Code).ToList();
+                       // List<AccLoc> acl = db.AccLoc.Where(o => o.LocCode == loc.Code).ToList();
 
-                        foreach (AccLoc code in acl)
+                        var accDetails = from r in db.AccLoc
+                                         join p in db.AccessionCodes on r.AccCode equals p.Code
+                                         where r.LocCode == loc.Code
+                                         select new { code = r.AccCode, isTouch = p.IsTouch };
+
+                        foreach (var code in accDetails)
                         {
                             xmlWriter.WriteStartElement("accession");
-                            if (AccessionCodes.CheckIfTouch(code.AccCode,db))
-                                xmlWriter.WriteAttributeString("isTouch", "Y");
-                            else
-                                xmlWriter.WriteAttributeString("isTouch", "N");
-                            xmlWriter.WriteString(code.AccCode);
+                           // if (AccessionCodes.CheckIfTouch(code.AccCode,db))
+                                xmlWriter.WriteAttributeString("isTouch", code.isTouch.Trim());
+                           // else
+                               // xmlWriter.WriteAttributeString("isTouch", "N");
+                            xmlWriter.WriteString(code.code);
                             xmlWriter.WriteEndElement();
 
                         }
