@@ -75,12 +75,13 @@ namespace MVCNetAdmin.Models
         {
             try
             {
-               
+
+                db.ChangeTracker.AutoDetectChangesEnabled = false;
                 db.Database.ExecuteSqlCommand("delete from AccLoc");
                 db.Database.ExecuteSqlCommand("delete from AccessionCodes");
                 db.Database.ExecuteSqlCommand("delete from Location");
 
-
+                int i = 0;
                 string fullpath = xmlpath ;
                 System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@");
                 if (!(File.Exists(fullpath)))
@@ -89,6 +90,7 @@ namespace MVCNetAdmin.Models
                 }
                 else
                 {
+                    HashSet<String> codes = new HashSet<string>();
                     XElement xelement = XElement.Load(fullpath);
                     System.Diagnostics.Debug.WriteLine(fullpath);
                     IEnumerable<XElement> locations = xelement.Elements();
@@ -133,23 +135,35 @@ namespace MVCNetAdmin.Models
                         db.SaveChanges();
                         if (location.Elements("accession") != null)
                         {
+                            
 
-                            foreach (var ac in location.Elements("accession").GroupBy(e => e.Value).Select(x => x.First()))
+                            foreach (var ac in location.Elements("accession").GroupBy(e => e.Value).Select(x => x.First()))   //to handle duplicate accessions within the same location
                             {
 
-                                if(ac!=null && ac.Value.Trim() != "")
+                                if(ac!=null && ac.Value.Trim() != "")  //using a in memory set as cache to check for duplicate instead of using db query every time and adding unique element to the set as well to the db
                                 {
-                                    AccessionCodes existing = db.AccessionCodes.Where(o => o.Code == ac.Value.Trim()).FirstOrDefault();
-                                    if (existing == null)
-                                    {
+                                    if (!codes.Contains(ac.Value.Trim())){
+                                        codes.Add(ac.Value.Trim());
                                         AccessionCodes acode = new AccessionCodes();
                                         acode.Code = ac.Value.Trim();
-                                        acode.IsTouch = ac.Attribute("isTouch")==null?"N": ac.Attribute("isTouch").Value.Trim();
+                                        acode.IsTouch = ac.Attribute("isTouch") == null ? "N" : ac.Attribute("isTouch").Value.Trim();
                                         acode.CreatedAt = DateTime.Now;
                                         acode.UpdatedAt = DateTime.Now;
                                         db.AccessionCodes.Add(acode);
-                                        db.SaveChanges();
+
                                     }
+                                    //AccessionCodes existing = db.AccessionCodes.Where(o => o.Code == ac.Value.Trim()).FirstOrDefault();
+                                    //if (existing == null)
+                                    //{
+                                    //    AccessionCodes acode = new AccessionCodes();
+                                    //    acode.Code = ac.Value.Trim();
+                                    //    acode.IsTouch = ac.Attribute("isTouch")==null?"N": ac.Attribute("isTouch").Value.Trim();
+                                    //    acode.CreatedAt = DateTime.Now;
+                                    //    acode.UpdatedAt = DateTime.Now;
+                                    //    db.AccessionCodes.Add(acode);
+                                       
+                                    //       // db.SaveChanges();
+                                    //}
 
                                     AccLoc acl = new AccLoc();
                                     acl.LocCode = location.Element("code").Value;
@@ -158,10 +172,14 @@ namespace MVCNetAdmin.Models
                                     acl.UpdatedAt = DateTime.Now;
                                     db.AccLoc.Add(acl);
 
-                                    db.SaveChanges();
+                                    //db.SaveChanges();
                                 }
-                                
+                                if (i % 50000 == 0)  //batches
+                                    db.SaveChanges();
+                                i++;  
                             }
+                            db.SaveChanges();
+
 
                         }
 

@@ -20,7 +20,7 @@
                     <optgroup label="Regular Sites">
                         @foreach (Location loc in al)
                         {
-                            System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!" + loc.Name);
+                            //System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!" + loc.Name);
                             if (loc.IsFTP == "N")
                             {
                                 <option value="@loc.Code">@loc.Name</option>
