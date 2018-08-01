@@ -237,7 +237,9 @@ namespace MVCNetAdmin.Controllers
             //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@touch");
             System.Diagnostics.Debug.WriteLine(touch + touch == "");
             Regex rgx = new Regex("[^a-zA-Z0-9,]");
-            
+            HashSet<String> setNonTouch = new HashSet<string>();
+            HashSet<String> setTouch = new HashSet<string>();
+
             Boolean flag = false;
             if (db.Location.Any(o => o.Code.Trim().Equals(code.Trim(), StringComparison.InvariantCultureIgnoreCase)))
                 flag = true;
@@ -307,7 +309,9 @@ namespace MVCNetAdmin.Controllers
                     if (accession != "" && accession != null)
                     {
                         String[] codes = rgx.Replace(accession.Trim(), "").Split(',');
-                        foreach (String c in codes)
+                        foreach (String t in codes)
+                            setNonTouch.Add(t);    //removing duplicates
+                        foreach (String c in setNonTouch)
                         {
                             if (!result.Contains(c))
                             {
@@ -334,7 +338,9 @@ namespace MVCNetAdmin.Controllers
                     if (touch != "" && touch != null)
                     {
                         String[] touchCodes = rgx.Replace(touch.Trim(), "").Split(',');
-                        foreach (String c in touchCodes)
+                        foreach (String t in touchCodes)
+                            setTouch.Add(t);
+                        foreach (String c in setTouch)
                         {
                             if (!result.Contains(c))
                             {

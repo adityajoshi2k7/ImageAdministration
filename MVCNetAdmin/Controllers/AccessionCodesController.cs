@@ -62,10 +62,13 @@ namespace MVCNetAdmin.Controllers
             List<String> siteCodes = db.AccLoc.Where(o => o.LocCode == site).Select(o => o.AccCode).ToList();
             List<String> touchList = db.AccessionCodes.Where(o => o.IsTouch == "Y").Select(o => o.Code).ToList();
             String[] codes = rgx.Replace(accession.Trim(), "").Split(',');
+            HashSet<String> set = new HashSet<string>();
+            foreach (String s in codes)
+                set.Add(s);
             String errorlog = "";
             if (type == "add")
             {
-                foreach(String c in codes)
+                foreach(String c in set)
                 {
                     if(touchList.Contains(c) && isTouch == "")
                     {
@@ -74,7 +77,7 @@ namespace MVCNetAdmin.Controllers
                 }
                 if(errorlog=="")
                 {
-                    foreach (String c in codes)
+                    foreach (String c in set)
                     {
                         if (!result.Contains(c))
                         {
@@ -150,7 +153,7 @@ namespace MVCNetAdmin.Controllers
             }
             else //remove
             {
-                foreach (String c in codes)
+                foreach (String c in set)
                 {
                     if (siteCodes.Contains(c))
                     {
