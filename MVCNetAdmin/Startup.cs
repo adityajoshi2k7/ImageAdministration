@@ -71,7 +71,7 @@ namespace MVCNetAdmin
                 app.UseExceptionHandler("/Home/Error");
             }
             var options = new RewriteOptions()
-            .AddRedirectToHttps(StatusCodes.Status301MovedPermanently, 63423);
+            .AddRedirectToHttps(StatusCodes.Status301MovedPermanently, 44335);
             app.UseRewriter(options);
             app.UseStaticFiles();
             app.UseMiddleware<StackifyMiddleware.RequestTracerMiddleware>();
