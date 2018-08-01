@@ -4,6 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +35,10 @@ namespace MVCNetAdmin
                 options.EnableSensitiveDataLogging();
             });
             services.AddMvc();
+            services.Configure<MvcOptions>(options =>
+            {
+                options.Filters.Add(new RequireHttpsAttribute());
+            });
         }
         public void ConfigureStagingServices(IServiceCollection services)   //services for staging environment.
         {
@@ -44,6 +51,11 @@ namespace MVCNetAdmin
                 options.EnableSensitiveDataLogging();
             });
             services.AddMvc();
+
+            services.Configure<MvcOptions>(options =>
+            {
+                options.Filters.Add(new RequireHttpsAttribute());
+            });
 
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,7 +70,9 @@ namespace MVCNetAdmin
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-
+            var options = new RewriteOptions()
+            .AddRedirectToHttps(StatusCodes.Status301MovedPermanently, 63423);
+            app.UseRewriter(options);
             app.UseStaticFiles();
             app.UseMiddleware<StackifyMiddleware.RequestTracerMiddleware>();
 

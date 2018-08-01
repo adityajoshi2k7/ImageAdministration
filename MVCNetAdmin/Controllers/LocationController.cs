@@ -13,6 +13,8 @@ using System.Diagnostics;
 using System.Net;
 using System.Text;
 using System.Xml;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace MVCNetAdmin.Controllers
 {
@@ -193,6 +195,7 @@ namespace MVCNetAdmin.Controllers
                 flag = true;
             if (!flag)
             {
+                password = EncryptPassword(password);
                 System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@controller");
                 Location l = new Location(db);
                 l.Name = name.Trim();
@@ -201,7 +204,7 @@ namespace MVCNetAdmin.Controllers
                 if (username != null)
                     l.Username = username.Trim();
                 if (password != null)
-                    l.Passwrd = password.Trim();
+                    l.Passwrd = password;
                 l.Port = port.Trim();
 
                 l.CreatedAt = DateTime.Now;
@@ -230,6 +233,26 @@ namespace MVCNetAdmin.Controllers
             return View("AddNewFTPForm");
 
 
+        }
+
+        private string EncryptPassword(string password)
+        {
+            byte[] salt = new byte[128 / 8];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(salt);
+            }
+            Console.WriteLine($"Salt: {Convert.ToBase64String(salt)}");
+
+            // derive a 256-bit subkey (use HMACSHA1 with 10,000 iterations)
+            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                password: password,
+                salt: salt,
+                prf: KeyDerivationPrf.HMACSHA1,
+                iterationCount: 10000,
+                numBytesRequested: 256 / 8));
+            System.Diagnostics.Debug.WriteLine("shshsshhshshs"+hashed);
+            return hashed;
         }
 
         public ActionResult AddNewSite(string name, string servername, string path, string code, string status, string diagnostic, string retention, string accession = "", string touch = "")
@@ -421,7 +444,7 @@ namespace MVCNetAdmin.Controllers
                 {
                     result.Host = host.Trim();
                     result.Username = username == null ? null : username.Trim();
-                    result.Passwrd = password == null ? null : password.Trim();
+                    result.Passwrd = password == null ? null : EncryptPassword(password);
                     result.Port = port.Trim();
                     result.DirectoryPath = directory == null ? null : directory.Trim();
                 }
