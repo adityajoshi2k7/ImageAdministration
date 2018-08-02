@@ -15,17 +15,20 @@ using System.Text;
 using System.Xml;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace MVCNetAdmin.Controllers
 {
     public class LocationController : Controller
     {
         static NetAdminContext db;
+        IDataProtector _protector;
 
-        public LocationController(NetAdminContext context)
+        public LocationController(NetAdminContext context,IDataProtectionProvider provider)
         {
 
             db = context;
+            _protector = provider.CreateProtector("adi.joshi.ftp.encrypt");    //purpose string should be same for a given usecase...won't be able to decipher for another string usecase
         }
         public IActionResult Index()
         {
@@ -84,7 +87,7 @@ namespace MVCNetAdmin.Controllers
 
 
             Location loc = new Location(db);
-            String errorlog = loc.VerifyAll();
+            String errorlog = loc.VerifyAll(_protector);
             return errorlog;
 
         }
@@ -94,7 +97,7 @@ namespace MVCNetAdmin.Controllers
 
 
             Location loc = new Location(db);
-            String errorlog = loc.VerifySelected(code);
+            String errorlog = loc.VerifySelected(code, _protector);
             return errorlog;
 
         }
@@ -169,7 +172,7 @@ namespace MVCNetAdmin.Controllers
             if (username != null)
                 loc.Username = username.Trim();
             if (password != null)
-                loc.Passwrd = password.Trim();
+                loc.Passwrd = _protector.Protect(password);
             if (directory != null)
             {
                 loc.DirectoryPath = directory.Trim();
@@ -187,16 +190,16 @@ namespace MVCNetAdmin.Controllers
 
         public ActionResult AddNewFTPSite(string name, string code, string host, string username, string password, string port, string directory = "")
         {
-            System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@username" + (username == null));
-            System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@username" + (password == null) + (password == ""));
-            System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@touchffgvg");
+            //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@username" + (username == null));
+            //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@username" + (password == null) + (password == ""));
+            //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@touchffgvg");
             Boolean flag = false;
             if (db.Location.Any(o => o.Code.Trim().Equals(code.Trim(), StringComparison.InvariantCultureIgnoreCase)))
                 flag = true;
             if (!flag)
             {
-                password = EncryptPassword(password);
-                System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@controller");
+               
+               
                 Location l = new Location(db);
                 l.Name = name.Trim();
                 l.Code = code.Trim();
@@ -204,9 +207,9 @@ namespace MVCNetAdmin.Controllers
                 if (username != null)
                     l.Username = username.Trim();
                 if (password != null)
-                    l.Passwrd = password;
+                    l.Passwrd = _protector.Protect(password);       //protecting the payload
                 l.Port = port.Trim();
-
+                System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@controller" + password);
                 l.CreatedAt = DateTime.Now;
                 l.UpdatedAt = DateTime.Now;
                 l.IsFTP = "Y";
@@ -215,10 +218,10 @@ namespace MVCNetAdmin.Controllers
                 {
                     l.DirectoryPath = directory.Trim();
                 }
-                System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@controller");
+                //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@controller");
                 db.Location.Add(l);
                 int res = db.SaveChanges();
-                System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@controller" + res);
+                //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@controller" + res);
                 TempData["msg"] = "The site has been added successfully";
                 return RedirectToAction("Index", "Home");
             }
@@ -444,7 +447,7 @@ namespace MVCNetAdmin.Controllers
                 {
                     result.Host = host.Trim();
                     result.Username = username == null ? null : username.Trim();
-                    result.Passwrd = password == null ? null : EncryptPassword(password);
+                    result.Passwrd = password == null ? null : _protector.Protect(password);
                     result.Port = port.Trim();
                     result.DirectoryPath = directory == null ? null : directory.Trim();
                 }
@@ -462,7 +465,7 @@ namespace MVCNetAdmin.Controllers
         public String PublishSelectedOrALL(string path = "", string code = "")
         {
             Location loc = new Location(db);
-            String message = loc.PublishSelectedOrALL(path, code);
+            String message = loc.PublishSelectedOrALL(_protector,path, code);
 
             return message;
         }
@@ -472,84 +475,45 @@ namespace MVCNetAdmin.Controllers
 
 
 
-        public string ViewSelectedSite(string path) //downloads the zip of directory in the given path
-        {
-            var processInfo = new ProcessStartInfo
-            {
-                Arguments = path,
-                //FileName = "explorer.exe",
-                //UserName = Username,
-                //Password = GetPasswordAsSecureString(),
-                //Domain = Domain,
-                UseShellExecute = false,
-            };
+        //public string ViewSelectedSite(string path) //downloads the zip of directory in the given path
+        //{
+        //    var processInfo = new ProcessStartInfo
+        //    {
+        //        Arguments = path,
+        //        //FileName = "explorer.exe",
+        //        //UserName = Username,
+        //        //Password = GetPasswordAsSecureString(),
+        //        //Domain = Domain,
+        //        UseShellExecute = false,
+        //    };
 
-            if (Directory.Exists(path))
-            {
-                Process.Start("explorer.exe", path);
-                return "";
-            }
-            else
-                return "The path is incorrect. Please check again";
-            //string startPath =path;
-            //string zipPath = @"sitedetails.zip";
-            //System.IO.File.Delete(@"sitedetails.zip");
+        //    if (Directory.Exists(path))
+        //    {
+        //        Process.Start("explorer.exe", path);
+        //        return "";
+        //    }
+        //    else
+        //        return "The path is incorrect. Please check again";
+        //    //string startPath =path;
+        //    //string zipPath = @"sitedetails.zip";
+        //    //System.IO.File.Delete(@"sitedetails.zip");
 
-            //    if (!Directory.Exists(path))
-            //    {
-            //        String errorlog ="The path is incorrect." + "\n";
-            //        TempData["msgfailure"] = "Something went wrong. Please try later." + "\n" + "Error: " + errorlog;
-            //        return RedirectToAction("Index", "Home");
+        //    //    if (!Directory.Exists(path))
+        //    //    {
+        //    //        String errorlog ="The path is incorrect." + "\n";
+        //    //        TempData["msgfailure"] = "Something went wrong. Please try later." + "\n" + "Error: " + errorlog;
+        //    //        return RedirectToAction("Index", "Home");
 
-            //    }
-            //    ZipFile.CreateFromDirectory(startPath, zipPath);
-            //    byte[] fileBytes = System.IO.File.ReadAllBytes(@"sitedetails.zip");
-            //    System.IO.File.Delete(@"sitedetails.zip");
-            //    return File(fileBytes, "application/zip", "sitedetails.zip");
+        //    //    }
+        //    //    ZipFile.CreateFromDirectory(startPath, zipPath);
+        //    //    byte[] fileBytes = System.IO.File.ReadAllBytes(@"sitedetails.zip");
+        //    //    System.IO.File.Delete(@"sitedetails.zip");
+        //    //    return File(fileBytes, "application/zip", "sitedetails.zip");
 
 
 
-        }
-        public string Ftp()
-        {
-            try
-            {
-                string directory = "/test";   //it should be there
-                string filename = "/abc2.txt";  //the file which would be created there
-                string host = "10.105.198.84";
-                string port = "21";
-                //FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://b2bgateway-staging.labcorp.com:30032/" + directory + "/" + filename);
-                FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + host + ":" + port + "/" + directory + filename);
-                request.Method = WebRequestMethods.Ftp.UploadFile;
-
-                // This example assumes the FTP site uses anonymous logon.
-                request.Credentials = new NetworkCredential("", "");
-
-                // Copy the contents of the file to the request stream.
-                byte[] fileContents;
-                using (StreamReader sourceStream = new StreamReader("testfile.txt"))
-                {
-                    fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
-                }
-
-                request.ContentLength = fileContents.Length;
-
-                using (Stream requestStream = request.GetRequestStream())
-                {
-                    requestStream.Write(fileContents, 0, fileContents.Length);
-                }
-
-                using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
-                {
-                    return $"Upload File Complete, status {response.StatusDescription}";
-                }
-            }
-            catch (Exception e)
-            {
-                return "Error : " + e.Message;
-            }
-
-        }
+        //}
+      
 
 
     }

@@ -9,6 +9,9 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 
 
@@ -83,7 +86,7 @@ namespace MVCNetAdmin.Models
 
                 int i = 0;
                 string fullpath = xmlpath ;
-                System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@");
+               // System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@");
                 if (!(File.Exists(fullpath)))
                 {
                     return "No XML file found at given path. Please check the path";
@@ -92,7 +95,7 @@ namespace MVCNetAdmin.Models
                 {
                     HashSet<String> codes = new HashSet<string>();
                     XElement xelement = XElement.Load(fullpath);
-                    System.Diagnostics.Debug.WriteLine(fullpath);
+                  //  System.Diagnostics.Debug.WriteLine(fullpath);
                     IEnumerable<XElement> locations = xelement.Elements();
                     foreach (var location in locations)
                     {
@@ -202,7 +205,7 @@ namespace MVCNetAdmin.Models
 
         }
 
-        internal string VerifyAll()
+        internal string VerifyAll(IDataProtector _protector)
         {
 
             List<Location> locations = db.Location.ToList();
@@ -238,7 +241,7 @@ namespace MVCNetAdmin.Models
                     }
                     else
                     {
-                        if (CheckIfFileExistsOnServer("accLoc.xml", lc) && CheckIfFileExistsOnServer("accLoc.ini", lc))
+                        if (CheckIfFileExistsOnServer("accLoc.xml", lc,_protector) && CheckIfFileExistsOnServer("accLoc.ini", lc,_protector))
                         {
                             if (lc.ConfigFileVersion != latestVersion)
                             {
@@ -263,7 +266,7 @@ namespace MVCNetAdmin.Models
                 return "Except for the below sites, all sites have latest configuration files." + "\n" + "\n" + errorlog;
         }
 
-        internal string VerifySelected(string code)
+        internal string VerifySelected(string code, IDataProtector _protector)
         {
             Location location = db.Location.Where(o => o.Code == code).First();
             int latestVersion = db.Location.Select(o => o.ConfigFileVersion).Max();
@@ -295,7 +298,7 @@ namespace MVCNetAdmin.Models
                 }
                 else
                 {
-                    if (CheckIfFileExistsOnServer("accLoc.xml", location) && CheckIfFileExistsOnServer("accLoc.ini", location))
+                    if (CheckIfFileExistsOnServer("accLoc.xml", location, _protector) && CheckIfFileExistsOnServer("accLoc.ini", location, _protector))
                     {
                         if (location.ConfigFileVersion != latestVersion)
                         {
@@ -354,8 +357,8 @@ namespace MVCNetAdmin.Models
             str = String.Join(",", str.Trim().Split(" "));
 
 
-            System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!");
-            System.Diagnostics.Debug.WriteLine(str);
+          //  System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!");
+          //  System.Diagnostics.Debug.WriteLine(str);
             ArrayList al = new ArrayList();
             al.Add(loc);
             al.Add(str);
@@ -367,7 +370,7 @@ namespace MVCNetAdmin.Models
 
         }
 
-        public String PublishSelectedOrALL(string path = "", string sitecode = "")   //writing xml and ini files for a selected site or all locations
+        public String PublishSelectedOrALL(IDataProtector _protector,string path = "", string sitecode = "")   //writing xml and ini files for a selected site or all locations
         {
             List<Location> lc = db.Location.ToList();
             XmlWriter xmlWriter;
@@ -377,7 +380,7 @@ namespace MVCNetAdmin.Models
             Location archive = db.Location.Where(o => (o.Code == "ARC")).FirstOrDefault();
             if (archive != null)
                 arcPath = archive.Path;
-            System.Diagnostics.Debug.WriteLine("##############" + arcPath);
+           // System.Diagnostics.Debug.WriteLine("##############" + arcPath);
             string tempPath = System.IO.Path.GetTempPath();
             if (sitecode != "")   //publish at a given site
             {
@@ -389,7 +392,7 @@ namespace MVCNetAdmin.Models
 
                         File.Delete(tempPath + "accLoc.ini");
                         File.Delete(tempPath + "accLoc.xml");
-                        System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@22" + tempPath);
+                       // System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@22" + tempPath);
                         iniFile = new IniFile(tempPath + "accLoc.ini");
                         xmlWriter = XmlWriter.Create(tempPath + "accLoc.xml");
 
@@ -536,8 +539,8 @@ namespace MVCNetAdmin.Models
                     xmlWriter.Close();
                     if (currloc.IsFTP == "Y")
                     {
-                        Ftp(currloc.DirectoryPath, "accloc.xml", currloc.Host, currloc.Port, currloc.Username, currloc.Passwrd, tempPath + "accloc.xml");
-                        Ftp(currloc.DirectoryPath, "accLoc.ini", currloc.Host, currloc.Port, currloc.Username, currloc.Passwrd, tempPath + "accLoc.ini");
+                        Ftp(currloc.DirectoryPath, "accloc.xml", currloc.Host, currloc.Port, currloc.Username, currloc.Passwrd, tempPath + "accloc.xml", _protector);
+                        Ftp(currloc.DirectoryPath, "accLoc.ini", currloc.Host, currloc.Port, currloc.Username, currloc.Passwrd, tempPath + "accLoc.ini", _protector);
                         if (archive != null)
                         {
                             File.Copy(tempPath + "accLoc.xml", arcPath + @"\history\" + "accLoc_" + (latestVersion + 1) + ".xml");
@@ -580,7 +583,7 @@ namespace MVCNetAdmin.Models
 
                     File.Delete(tempPath + "accLoc.ini");
                     File.Delete(tempPath + "accLoc.xml");
-                    System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@22" + tempPath);
+                   // System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@22" + tempPath);
                     iniFile = new IniFile(tempPath + "accLoc.ini");
                     xmlWriter = XmlWriter.Create(tempPath + "accLoc.xml");
 
@@ -715,8 +718,8 @@ namespace MVCNetAdmin.Models
                         {
                             if (ltn.IsFTP == "Y")
                             {
-                                Ftp(ltn.DirectoryPath, "accloc.xml", ltn.Host, ltn.Port, ltn.Username, ltn.Passwrd, tempPath + "accloc.xml");
-                                Ftp(ltn.DirectoryPath, "accLoc.ini", ltn.Host, ltn.Port, ltn.Username, ltn.Passwrd, tempPath + "accLoc.ini");
+                                Ftp(ltn.DirectoryPath, "accloc.xml", ltn.Host, ltn.Port, ltn.Username, ltn.Passwrd, tempPath + "accloc.xml", _protector);
+                                Ftp(ltn.DirectoryPath, "accLoc.ini", ltn.Host, ltn.Port, ltn.Username, ltn.Passwrd, tempPath + "accLoc.ini", _protector);
 
 
                             }
@@ -852,7 +855,7 @@ namespace MVCNetAdmin.Models
 
 
         }
-        internal void Ftp(string directory, string fileToBeCreated, string host, string port, string username, string password, string fileToBeTransferred)
+        internal void Ftp(string directory, string fileToBeCreated, string host, string port, string username, string password, string fileToBeTransferred,IDataProtector _protector)
         {
             //try
             //{
@@ -861,8 +864,10 @@ namespace MVCNetAdmin.Models
             //string host = "10.105.198.84";
             //string port = "21";
 
-            username = username == null ? "" : username.ToString();
-            password = password == null ? "" : password.ToString();
+            username = username == null ? "" : username;
+            password = password == null ? "" : _protector.Unprotect(password);
+
+            //System.Diagnostics.Debug.WriteLine("QQQQQQQQQQ" + password);
             directory = directory == null ? "" : directory.ToString() + "/";
 
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + host + ":" + port + "/" + directory + fileToBeCreated);
@@ -896,10 +901,12 @@ namespace MVCNetAdmin.Models
             //}
 
         }
-        private bool CheckIfFileExistsOnServer(string fileName, Location l)
+        private bool CheckIfFileExistsOnServer(string fileName, Location l, IDataProtector _protector)
         {
             string username = l.Username == null ? "" : l.Username.ToString();
-            string password = l.Passwrd == null ? "" : l.Passwrd.ToString();
+            string password = l.Passwrd == null ? "" : _protector.Unprotect(l.Passwrd);
+           // System.Diagnostics.Debug.WriteLine("$$$$$$$$$$$$$9" + password);
+
             string directory = l.DirectoryPath == null ? "" : l.DirectoryPath.ToString() + "/";
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + l.Host + ":" + l.Port + "/" + directory + fileName);
             request.Credentials = new NetworkCredential(username, password);
