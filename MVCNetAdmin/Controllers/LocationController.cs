@@ -16,9 +16,11 @@ using System.Xml;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MVCNetAdmin.Controllers
 {
+    [Authorize]
     public class LocationController : Controller
     {
         static NetAdminContext db;

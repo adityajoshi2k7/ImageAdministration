@@ -6,8 +6,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MVCNetAdmin.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Labcorp.CustSvr.Base.Classes.Tools;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+
 namespace MVCNetAdmin.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         static NetAdminContext db;
@@ -40,13 +46,17 @@ namespace MVCNetAdmin.Controllers
 
         public IActionResult Contact()
         {
-            ViewData["Message"] = "Your contact page.";
 
+           //LDAP.Authenticate("joshia", "test");
+            ViewData["Message"] = "Your contact page.";
             return View();
         }
+        
 
         public IActionResult Error()
         {
+
+            
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -34,6 +35,17 @@ namespace MVCNetAdmin
           
                 options.EnableSensitiveDataLogging();
             });
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                    .AddCookie(options =>
+                    {
+                       
+                        options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+                        options.SlidingExpiration = true;
+                        options.LoginPath = "/Login/LoginForm";
+
+                        options.LoginPath = "/Login/LoginForm";
+
+                    });
             services.AddMvc();
             services.Configure<MvcOptions>(options =>
             {
@@ -50,6 +62,17 @@ namespace MVCNetAdmin
 
                 options.EnableSensitiveDataLogging();
             });
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                    .AddCookie(options =>
+                    {
+
+                        options.CookieName = "aditya";
+                        options.ExpireTimeSpan= TimeSpan.FromMinutes(2);
+                        options.SlidingExpiration = true;
+                        options.LoginPath = "/Login/LoginForm";
+                       
+
+                    });
             services.AddMvc();
 
             services.Configure<MvcOptions>(options =>
@@ -61,6 +84,7 @@ namespace MVCNetAdmin
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseAuthentication();
             if (env.IsDevelopment())
             {
                 app.UseBrowserLink();
@@ -68,7 +92,9 @@ namespace MVCNetAdmin
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseBrowserLink();
+                app.UseDeveloperExceptionPage();
+                //app.UseExceptionHandler("/Home/Error");
             }
             var options = new RewriteOptions()
             .AddRedirectToHttps(StatusCodes.Status301MovedPermanently, 44335);
@@ -80,7 +106,7 @@ namespace MVCNetAdmin
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=Login}/{action=LoginForm}/{id?}");
             });
         }
     }

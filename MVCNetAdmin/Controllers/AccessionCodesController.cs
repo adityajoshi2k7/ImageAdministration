@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MVCNetAdmin.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MVCNetAdmin.Controllers
 {
+    [Authorize]
     public class AccessionCodesController : Controller
     {
 

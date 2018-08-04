@@ -1,4 +1,5 @@
 ﻿<!DOCTYPE html>
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
 <html>
 <head>
     <meta charset="utf-8" />
@@ -39,17 +40,22 @@
 
                         <a href="#" class="pull-left"><img src="~/images/labcorp.png" style="height:50px;width:130px;"></a>
 
-                        <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand pull-left">
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand pull-left" style="width: 38%;margin-top: -10px;">
                             NetAdmin
                             <environment names="Development">
-                                <span style="font-size: 10px;" >Development</span>
+                                <span style="font-size: 10px;">Development</span>
                             </environment>
                             <environment names="Test">
-                                <span  style="font-size: 10px;">Test</span>
+                                <span style="font-size: 10px;">Test</span>
                             </environment>
                             <environment names="Staging">
-                                <span  style="font-size: 10px;">Staging</span>
+                                <span style="font-size: 10px;">Staging</span>
                             </environment>
+
+                            @if (HttpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
+                            {
+                                <span style="font-size: 10px;">@HttpContextAccessor.HttpContext.User.Claims.FirstOrDefault().Value</span>
+                            }
                         </a>
                     </div>
                 </div>
@@ -58,9 +64,17 @@
                 <div class="col-md-4">
                     <div class="navbar-collapse collapse pull-right">
                         <ul class="nav navbar-nav">
-                            <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                            <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
-                            <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
+
+                            @if (HttpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
+                            {
+                                <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+                                <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
+                                <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
+                                <li><a asp-area="" asp-controller="Login" asp-action="Logout">Logout</a></li>
+
+
+                            }
+
                         </ul>
                     </div>
                 </div>
@@ -71,7 +85,7 @@
 
 
     <div class="container-fluid" style="padding-bottom:15px;">
-        <div class="modal fade" id="partialmodal" >
+        <div class="modal fade" id="partialmodal">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -84,11 +98,11 @@
                         <div id="partial"></div>
                     </div>
                     @*<div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" >Submit</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">
-                            Close
-                        </button>
-                    </div>*@
+                            <button type="submit" class="btn btn-primary" >Submit</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">
+                                Close
+                            </button>
+                        </div>*@
                 </div>
             </div>
         </div>
@@ -97,30 +111,30 @@
     </div>
     <div class="navbar navbar-default navbar-fixed-bottom">
 
-            <footer>
-                <p style="text-align:center">&copy; 2018 - NetAdminCoreMVC</p>
-      </footer>
-        </div>
+        <footer>
+            <p style="text-align:center">&copy; 2018 - NetAdminCoreMVC</p>
+        </footer>
+    </div>
 
-        <environment include="Development">
-        
+    <environment include="Development">
+
     </environment>
-        <environment exclude="Development,Staging,Test">
-            <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
-                    asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
-                    asp-fallback-test="window.jQuery"
-                    crossorigin="anonymous"
-                    integrity="sha384-K+ctZQ+LL8q6tP7I94W+qzQsfRV2a+AfHIi9k8z8l9ggpc8X+Ytst4yBo/hH+8Fk">
-            </script>
-            <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
-                    asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
-                    asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
-                    crossorigin="anonymous"
-                    integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
-            </script>
-            <script src="~/js/site.min.js" asp-append-version="true"></script>
-        </environment>
+    <environment exclude="Development,Staging,Test">
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha384-K+ctZQ+LL8q6tP7I94W+qzQsfRV2a+AfHIi9k8z8l9ggpc8X+Ytst4yBo/hH+8Fk">
+        </script>
+        <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
+                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+                crossorigin="anonymous"
+                integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
+        </script>
+        <script src="~/js/site.min.js" asp-append-version="true"></script>
+    </environment>
 
-        @RenderSection("Scripts", required: false)
+    @RenderSection("Scripts", required: false)
 </body>
 </html>
