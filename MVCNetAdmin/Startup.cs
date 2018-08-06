@@ -43,7 +43,7 @@ namespace MVCNetAdmin
                         options.SlidingExpiration = true;
                         options.LoginPath = "/Login/LoginForm";
 
-                        options.LoginPath = "/Login/LoginForm";
+                       
 
                     });
             services.AddMvc();
@@ -66,8 +66,7 @@ namespace MVCNetAdmin
                     .AddCookie(options =>
                     {
 
-                        options.CookieName = "aditya";
-                        options.ExpireTimeSpan= TimeSpan.FromMinutes(2);
+                        options.ExpireTimeSpan= TimeSpan.FromMinutes(10);
                         options.SlidingExpiration = true;
                         options.LoginPath = "/Login/LoginForm";
                        

@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Labcorp.CustSvr.Base.Classes.Tools;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace MVCNetAdmin.Controllers
 {
@@ -37,7 +39,7 @@ namespace MVCNetAdmin.Controllers
         {
 
             Boolean flag = true;
-            //flag = LDAP.Authenticate(username, password);
+           flag = LDAP.Authenticate(username, password);
             if (flag)
             {
                 var claims = new List<Claim>   //create a Claims list.
