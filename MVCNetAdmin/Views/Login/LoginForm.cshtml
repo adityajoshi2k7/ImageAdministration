@@ -2,10 +2,11 @@
 @{
     ViewData["Title"] = "LoginForm";
 }
-
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
 <div class="row">
     <div class="form-group  col-md-4 col-md-offset-4 ">
-        <form asp-action="Authenticate" id="myform">
+        <form asp-action="Authenticate" id="loginform">
             <div class="panel panel-default">
                 <div class="panel-heading font-weight-bold" style="text-align:center;"><strong>Login</strong></div>
                 <div class="panel-body" style="width: 75%;margin-left: 10%;">
@@ -81,3 +82,23 @@
 
 }
 
+<script>
+
+    $(document).ready(function () {
+        $("#loginform").validate({
+            errorClass: "my-error-class",
+            rules: {
+                username: "required",
+                password: "required"
+
+            },
+            messages: {
+                username: "Required",
+                password: "Required"
+
+
+            }
+        });
+    });
+
+</script>

@@ -49,7 +49,7 @@
 
   <ItemGroup>
     <Reference Include="Base">
-      <HintPath>..\..\..\..\Desktop\Base.dll</HintPath>
+      <HintPath>..\..\..\..\Documents\Base.dll</HintPath>
     </Reference>
     <Reference Include="DotNetZip">
       <HintPath>..\..\..\..\.nuget\packages\dotnetzip\1.10.1\lib\net20\DotNetZip.dll</HintPath>
