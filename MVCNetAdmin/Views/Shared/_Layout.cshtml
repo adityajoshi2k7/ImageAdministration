@@ -63,6 +63,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="navbar-collapse collapse pull-right">
+
                         <ul class="nav navbar-nav ">
 
                             @if (HttpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
@@ -71,8 +72,8 @@
                                <li><a asp-area="" asp-controller="Login" asp-action="Logout"> <span title="Logout" class="glyphicon glyphicon-log-out"></span></a></li>
                                 <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
                                 <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
-                                <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
-
+                                <li><a asp-area="" asp-controller="Home" asp-action="ManageForm">Manage</a></li>
+                                
 
                             }
 

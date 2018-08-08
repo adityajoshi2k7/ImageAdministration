@@ -10,16 +10,18 @@ namespace MVCNetAdmin.Models
         public virtual DbSet<AccLoc> AccLoc { get; set; }
         public virtual DbSet<Location> Location { get; set; }
 
-       
-//        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//        {
-////            if (!optionsBuilder.IsConfigured)
-////            {
-////#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-////                optionsBuilder.UseSqlServer(@"Server=5CG71213VB\ADITYA;;Database=NetAdmin;Trusted_Connection=True;");
-////                optionsBuilder.EnableSensitiveDataLogging();
-////            }
-//        }
+        public virtual DbSet<Users> Users { get; set; }
+
+
+        //        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //        {
+        ////            if (!optionsBuilder.IsConfigured)
+        ////            {
+        ////#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+        ////                optionsBuilder.UseSqlServer(@"Server=5CG71213VB\ADITYA;;Database=NetAdmin;Trusted_Connection=True;");
+        ////                optionsBuilder.EnableSensitiveDataLogging();
+        ////            }
+        //        }
         public NetAdminContext(DbContextOptions<NetAdminContext> options): base(options)
         {
 
@@ -94,7 +96,18 @@ namespace MVCNetAdmin.Models
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             });
-           
+            modelBuilder.Entity<Users>(entity =>
+            {
+                entity.HasKey(e => e.UserId);
+
+                entity.Property(e => e.UserId)
+                    .HasColumnName("UserID")
+                    .HasMaxLength(50)
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            });
+
 
         }
     }

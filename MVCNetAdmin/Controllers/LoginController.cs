@@ -7,12 +7,19 @@ using Labcorp.CustSvr.Base.Classes.Tools;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
+using MVCNetAdmin.Models;
 
 namespace MVCNetAdmin.Controllers
 {
     public class LoginController : Controller
     {
+        static NetAdminContext db;
+
+        public LoginController(NetAdminContext context)
+        {
+
+            db = context;
+        }
         public IActionResult Index()
         {
             return View();
@@ -38,9 +45,15 @@ namespace MVCNetAdmin.Controllers
         public async Task<ActionResult> Authenticate(string username, string password,string returnURL="")
         {
 
-            Boolean flag = true;
-           flag = LDAP.Authenticate(username, password);
-            if (flag)
+           
+
+            var authorizedUserIDs = db.Users.Select(o => o.UserId);   //authorized users
+            if (!authorizedUserIDs.Contains(username))
+            {
+                TempData["loginfailed"] = "You are not Authorized to login. Please Contact Admin.";
+                return RedirectToAction("LoginForm", "Login");
+            }
+            if (LDAP.Authenticate(username, password))
             {
                 var claims = new List<Claim>   //create a Claims list.
                     {
@@ -67,7 +80,7 @@ namespace MVCNetAdmin.Controllers
 
             else
             {
-                TempData["loginfailed"] = "Invalid username/password";
+                TempData["loginfailed"] = "Invalid password";
                 return RedirectToAction("LoginForm", "Login");
             }
                 
