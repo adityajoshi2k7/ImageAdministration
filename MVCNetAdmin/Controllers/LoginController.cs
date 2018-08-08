@@ -80,7 +80,7 @@ namespace MVCNetAdmin.Controllers
 
             else
             {
-                TempData["loginfailed"] = "Invalid password";
+                TempData["loginfailed"] = "Invalid username/ password";
                 return RedirectToAction("LoginForm", "Login");
             }
                 
