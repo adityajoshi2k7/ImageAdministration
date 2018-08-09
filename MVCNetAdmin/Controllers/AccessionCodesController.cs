@@ -90,6 +90,7 @@ namespace MVCNetAdmin.Controllers
                     string added = "";
                     foreach (String c in set)
                     {
+                        added += c + " ";
                         if (!result.Contains(c))
                         {
                             AccessionCodes ac = new AccessionCodes(db);                    //new regular code only if it does not exist
@@ -103,7 +104,7 @@ namespace MVCNetAdmin.Controllers
                             //ac.LockVersion = 0;
                             db.AccessionCodes.Add(ac);
                             db.SaveChanges();
-                            added += c + " ";
+                            
                             AccLoc al = new AccLoc(db);                                             //location and code mapping
                             al.LocCode = site.Trim();
                             al.AccCode = c;
