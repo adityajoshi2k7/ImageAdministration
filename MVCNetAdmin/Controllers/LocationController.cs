@@ -17,6 +17,7 @@ using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace MVCNetAdmin.Controllers
 {
@@ -25,12 +26,20 @@ namespace MVCNetAdmin.Controllers
     {
         static NetAdminContext db;
         IDataProtector _protector;
-
-        public LocationController(NetAdminContext context,IDataProtectionProvider provider)
+        string currentUserID;
+        string IPAddress;
+        private IHttpContextAccessor _accessor;
+        private IPAddress IP;
+        public LocationController(NetAdminContext context, IDataProtectionProvider provider, IHttpContextAccessor accessor)
         {
 
             db = context;
-            _protector = provider.CreateProtector("adi.joshi.ftp.encrypt");    //purpose string should be same for a given usecase...won't be able to decipher for another string usecase
+            _accessor = accessor;
+            currentUserID = _accessor.HttpContext.User.Claims.FirstOrDefault().Value;
+            IP = _accessor.HttpContext.Connection.RemoteIpAddress.MapToIPv4();
+            IPAddress = IP.ToString();
+
+             _protector = provider.CreateProtector("adi.joshi.ftp.encrypt");    //purpose string should be same for a given usecase...won't be able to decipher for another string usecase
         }
         public IActionResult Index()
         {
@@ -123,6 +132,10 @@ namespace MVCNetAdmin.Controllers
             Location loc = new Location(db);
             loc.RemoveLocation(site);
             TempData["msg"] = "The site has been deleted successfully";
+            UserLogs u = new UserLogs(db);
+            u.LogDetails(currentUserID, IPAddress.ToString(), "Deleted site: " + site);
+
+
             return RedirectToAction("Index", "Home");
 
 
@@ -139,7 +152,7 @@ namespace MVCNetAdmin.Controllers
 
         public ActionResult ConvertToFTPForm(string code)
         {
-           
+
             Location loc = db.Location.Where(o => o.Code == code).First();
             TempData["name"] = loc.Name;
             TempData["code"] = loc.Code;
@@ -150,18 +163,105 @@ namespace MVCNetAdmin.Controllers
 
 
 
+        public ActionResult ViewLogs(string code)
+        {
+
+           
+            return View();
+
+
+        }
+
         public ActionResult RecoverDB()
         {
             return PartialView();
 
 
         }
+        [HttpPost]
+        public IActionResult LoadData()
+        {
+            try
+            {
+                var draw = HttpContext.Request.Form["draw"].FirstOrDefault();
+                // Skiping number of Rows count  
+                var start = Request.Form["start"].FirstOrDefault();
+                // Paging Length 10,20  
+                var length = Request.Form["length"].FirstOrDefault();
+                // Sort Column Name  
+                var sortColumn = Request.Form["columns[" + Request.Form["order[0][column]"].FirstOrDefault() + "][name]"].FirstOrDefault();
+                // Sort Column Direction ( asc ,desc)  
+                var sortColumnDirection = Request.Form["order[0][dir]"].FirstOrDefault();
+                // Search Value from (Search box)  
+                var searchValue = Request.Form["search[value]"].FirstOrDefault();
+
+                //Paging Size (10,20,50,100)  
+                int pageSize = length != null ? Convert.ToInt32(length) : 0;
+                int skip = start != null ? Convert.ToInt32(start) : 0;
+                int recordsTotal = 0;
+
+                // Getting all Customer data  
+                var customerData = (from userlogs in db.UserLogs
+                                    select userlogs);
+                customerData = customerData.OrderByDescending(m => m.CreatedAt);
+                //Sorting  
+                if (!(string.IsNullOrEmpty(sortColumn) && string.IsNullOrEmpty(sortColumnDirection)))
+                {
+                    switch (sortColumn)
+                    {
+                        case "userId":
+                            if (sortColumnDirection == "asc")
+                                customerData = customerData.OrderBy(o => o.UserId);
+                            else
+                                customerData = customerData.OrderByDescending(o => o.UserId);
+                            break;
+
+                        case "createdAt":
+                            if (sortColumnDirection == "asc")
+                                customerData = customerData.OrderBy(o => o.CreatedAt);
+                            else
+                                customerData = customerData.OrderByDescending(o => o.CreatedAt);
+                            break;
+                        default:
+                            customerData = customerData.OrderByDescending(o => o.CreatedAt);
+                            break;
+
+
+                    }
+                    //if (sortColumnDirection == "asc")
+                    //   customerData = customerData.OrderBy(sortColumn,"");
+                    //else
+                    //   customerData = customerData.OrderByDescending(sortColumn);
+                }
+                //Search  
+                if (!string.IsNullOrEmpty(searchValue))
+                {
+                    customerData = customerData.Where(m => m.UserId.Contains(searchValue) || m.Action.Contains(searchValue) || m.Ipaddress.Contains(searchValue));   //can add OR conditions
+                }
+
+                //total number of rows count   
+                recordsTotal = customerData.Count();
+                //Paging   
+                var data = customerData.Skip(skip).Take(pageSize).ToList();
+                //Returning Json Data  
+                return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
 
         public string RecoverDBFinal(string path)
         {
             Location loc = new Location(db);
-            return loc.Recover(path);
-               
+            string result= loc.Recover(path);
+            UserLogs u = new UserLogs(db);
+            u.LogDetails(currentUserID, IPAddress, "Restored the database from XML files.");
+            return result;
+
         }
 
 
@@ -169,7 +269,7 @@ namespace MVCNetAdmin.Controllers
 
         public ActionResult ConvertToFTP(string code, string host, string username, string password, string port, string directory = "")
         {
-          
+
             Location loc = db.Location.Where(o => o.Code == code).First();
             if (username != null)
                 loc.Username = username.Trim();
@@ -200,8 +300,8 @@ namespace MVCNetAdmin.Controllers
                 flag = true;
             if (!flag)
             {
-               
-               
+
+
                 Location l = new Location(db);
                 l.Name = name.Trim();
                 l.Code = code.Trim();
@@ -223,6 +323,8 @@ namespace MVCNetAdmin.Controllers
                 //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@controller");
                 db.Location.Add(l);
                 int res = db.SaveChanges();
+                UserLogs u = new UserLogs(db);
+                u.LogDetails(currentUserID, IPAddress, "Added new FTP site: " + l.Name);
                 //System.Diagnostics.Debug.WriteLine("@@@@@@@@@@@@@@@@@@@@@controller" + res);
                 TempData["msg"] = "The site has been added successfully";
                 return RedirectToAction("Index", "Home");
@@ -256,7 +358,7 @@ namespace MVCNetAdmin.Controllers
                 prf: KeyDerivationPrf.HMACSHA1,
                 iterationCount: 10000,
                 numBytesRequested: 256 / 8));
-            System.Diagnostics.Debug.WriteLine("shshsshhshshs"+hashed);
+            System.Diagnostics.Debug.WriteLine("shshsshhshshs" + hashed);
             return hashed;
         }
 
@@ -403,6 +505,9 @@ namespace MVCNetAdmin.Controllers
 
 
                 }
+
+                UserLogs u = new UserLogs(db);
+                u.LogDetails(currentUserID, IPAddress, "Created site: " +l.Name);
                 TempData["msg"] = "The site has been added successfully";
                 return RedirectToAction("Index", "Home");
 
@@ -457,8 +562,10 @@ namespace MVCNetAdmin.Controllers
 
                 result.UpdatedAt = DateTime.Now;
                 db.SaveChanges();
+                UserLogs u = new UserLogs(db);
+                u.LogDetails(currentUserID, IPAddress, "Edited site: " + result.Name);
             }
-
+            
             TempData["msg"] = "The site has been updated successfully";
             return RedirectToAction("Index", "Home");
         }
@@ -467,8 +574,17 @@ namespace MVCNetAdmin.Controllers
         public String PublishSelectedOrALL(string path = "", string code = "")
         {
             Location loc = new Location(db);
-            String message = loc.PublishSelectedOrALL(_protector,path, code);
-
+            String message = loc.PublishSelectedOrALL(_protector, path, code);
+            if (code != "")
+            {
+                UserLogs u = new UserLogs(db);
+                u.LogDetails(currentUserID, IPAddress, "Published config files at site: " +code);
+            }
+            else
+            {
+                UserLogs u = new UserLogs(db);
+                u.LogDetails(currentUserID, IPAddress, "Published config files at all sites. ");
+            }
             return message;
         }
 
@@ -515,7 +631,7 @@ namespace MVCNetAdmin.Controllers
 
 
         //}
-      
+
 
 
     }

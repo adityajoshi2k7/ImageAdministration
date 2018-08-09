@@ -7,9 +7,11 @@ namespace MVCNetAdmin.Models
     {
         static NetAdminContext db;
 
+        
+
         public Users(NetAdminContext context)
         {
-            
+
             db = context;
         }
 

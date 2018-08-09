@@ -11,6 +11,7 @@ namespace MVCNetAdmin.Models
         public virtual DbSet<Location> Location { get; set; }
 
         public virtual DbSet<Users> Users { get; set; }
+        public virtual DbSet<UserLogs> UserLogs { get; set; }
 
 
         //        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -22,7 +23,7 @@ namespace MVCNetAdmin.Models
         ////                optionsBuilder.EnableSensitiveDataLogging();
         ////            }
         //        }
-        public NetAdminContext(DbContextOptions<NetAdminContext> options): base(options)
+        public NetAdminContext(DbContextOptions<NetAdminContext> options) : base(options)
         {
 
         }
@@ -106,6 +107,17 @@ namespace MVCNetAdmin.Models
                     .ValueGeneratedNever();
 
                 entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<UserLogs>(entity =>
+            {
+                entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+
+                entity.Property(e => e.Ipaddress)
+                    .HasColumnName("IPAddress")
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.UserId).HasMaxLength(50);
             });
 
 

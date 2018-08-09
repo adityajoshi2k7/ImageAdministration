@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MVCNetAdmin.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using System.Net;
 
 namespace MVCNetAdmin.Controllers
 {
@@ -16,10 +18,16 @@ namespace MVCNetAdmin.Controllers
     {
 
         static NetAdminContext db;
-
-        public AccessionCodesController(NetAdminContext context)
+        string currentUserID;
+        string IPAddress;
+        private IHttpContextAccessor _accessor;
+        private IPAddress IP;
+        public AccessionCodesController(NetAdminContext context, IHttpContextAccessor accessor)
         {
-           
+            _accessor = accessor;
+            currentUserID = _accessor.HttpContext.User.Claims.FirstOrDefault().Value;
+            IP = _accessor.HttpContext.Connection.RemoteIpAddress.MapToIPv4();
+            IPAddress = IP.ToString();
             db = context;
         }
         // GET: AccessionCodes/Create
@@ -79,6 +87,7 @@ namespace MVCNetAdmin.Controllers
                 }
                 if(errorlog=="")
                 {
+                    string added = "";
                     foreach (String c in set)
                     {
                         if (!result.Contains(c))
@@ -94,6 +103,7 @@ namespace MVCNetAdmin.Controllers
                             //ac.LockVersion = 0;
                             db.AccessionCodes.Add(ac);
                             db.SaveChanges();
+                            added += c + " ";
                             AccLoc al = new AccLoc(db);                                             //location and code mapping
                             al.LocCode = site.Trim();
                             al.AccCode = c;
@@ -139,6 +149,11 @@ namespace MVCNetAdmin.Controllers
 
 
                     }
+                    
+                    
+                    added= String.Join(",", added.Trim().Split(" "));
+                    UserLogs u = new UserLogs(db);
+                    u.LogDetails(currentUserID, IPAddress, "Added accession codes: "+ added + " at location : " + site);
                 }
                 else
                 {
@@ -155,15 +170,22 @@ namespace MVCNetAdmin.Controllers
             }
             else //remove
             {
+                string removed = "";
                 foreach (String c in set)
                 {
+                    
                     if (siteCodes.Contains(c))
                     {
                         AccLoc acl = db.AccLoc.Where(o => o.LocCode == site && o.AccCode == c).First();
                         db.Remove(acl);
                         db.SaveChanges();
+                        removed += c + " ";
                     }
                 }
+                
+                removed = String.Join(",", removed.Trim().Split(" "));
+                UserLogs u = new UserLogs(db);
+                u.LogDetails(currentUserID, IPAddress, "Removed accession codes: " + removed + " at location : " + site);
 
                 //removing the unused codes    NOW HANDLED BY TRIGGER
                 //List<String> accLocLeft = db.AccLoc.Select(o => o.AccCode).ToList();

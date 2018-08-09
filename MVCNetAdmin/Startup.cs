@@ -46,6 +46,7 @@ namespace MVCNetAdmin
                        
 
                     });
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddMvc();
             services.Configure<MvcOptions>(options =>
             {
@@ -72,6 +73,7 @@ namespace MVCNetAdmin
                        
 
                     });
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddMvc();
 
             services.Configure<MvcOptions>(options =>

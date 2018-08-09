@@ -10,6 +10,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
+using System.Net;
 
 namespace MVCNetAdmin.Controllers
 {
@@ -17,11 +19,18 @@ namespace MVCNetAdmin.Controllers
     public class HomeController : Controller
     {
         static NetAdminContext db;
-
-        public HomeController(NetAdminContext context)
+        string currentUserID;
+        string IPAddress;
+        private IHttpContextAccessor _accessor;
+        private IPAddress IP;
+        public HomeController(NetAdminContext context, IHttpContextAccessor accessor)
         {
 
             db = context;
+            _accessor = accessor;
+            currentUserID = _accessor.HttpContext.User.Claims.FirstOrDefault().Value;
+            IP = _accessor.HttpContext.Connection.RemoteIpAddress.MapToIPv4();
+            IPAddress = IP.ToString();
         }
         public IActionResult Index()
         {
@@ -74,6 +83,7 @@ namespace MVCNetAdmin.Controllers
             String errorlog = "";
             if (type == "add")
             {
+                string added = "";
                 foreach (String c in set)
                 {
                     if (result.Contains(c))
@@ -89,13 +99,17 @@ namespace MVCNetAdmin.Controllers
                             Users u = new Users(db);
                             u.UserId = c;
                             u.CreatedAt = DateTime.Now;
-                            
+                            added += c + " ";
                             db.Users.Add(u);
                             db.SaveChanges();
                        
                         
 
                     }
+                    added = String.Join(",", added.Trim().Split(" "));
+                    UserLogs ul = new UserLogs(db);
+                    ul.LogDetails(currentUserID, IPAddress, "Added Users: " + added);
+
                 }
                 else
                 {
@@ -112,6 +126,7 @@ namespace MVCNetAdmin.Controllers
             }
             else //remove
             {
+                string removed = "";
                 foreach (String c in set)
                 {
                     if (result.Contains(c))
@@ -119,8 +134,12 @@ namespace MVCNetAdmin.Controllers
                         Users u = db.Users.Where(o => o.UserId == c).First();
                         db.Remove(u);
                         db.SaveChanges();
+                        removed += c + " ";
                     }
                 }
+                removed = String.Join(",", removed.Trim().Split(" "));
+                UserLogs ul = new UserLogs(db);
+                ul.LogDetails(currentUserID, IPAddress, "Removed Users: " + removed);
 
                 //removing the unused codes    NOW HANDLED BY TRIGGER
                 //List<String> accLocLeft = db.AccLoc.Select(o => o.AccCode).ToList();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Labcorp.CustSvr.Base.Classes.Tools;
@@ -14,11 +15,18 @@ namespace MVCNetAdmin.Controllers
     public class LoginController : Controller
     {
         static NetAdminContext db;
-
-        public LoginController(NetAdminContext context)
+       
+        string IPAddress;
+        private IHttpContextAccessor _accessor;
+        private IPAddress IP;
+        public LoginController(NetAdminContext context, IHttpContextAccessor accessor)
         {
 
             db = context;
+            _accessor = accessor;
+
+            IP = _accessor.HttpContext.Connection.RemoteIpAddress.MapToIPv4();
+            IPAddress = IP.ToString();
         }
         public IActionResult Index()
         {
@@ -36,8 +44,11 @@ namespace MVCNetAdmin.Controllers
        
         public async Task<IActionResult> Logout()
         {
+            UserLogs u = new UserLogs(db);
+            u.LogDetails(_accessor.HttpContext.User.Claims.FirstOrDefault().Value, IPAddress, "Logged Out");
             await HttpContext.SignOutAsync();
             TempData["logout"] = "You have been logged out. Please close the browser tab for security purposes";
+           
 
             return RedirectToAction("LoginForm", "Login");
         }
@@ -67,10 +78,14 @@ namespace MVCNetAdmin.Controllers
                 if(returnURL!=null && returnURL.ToString() != "")
                 {
                     //System.Diagnostics.Debug.WriteLine("!!!!!!!!!!!!!!!!!1" + returnURL);
+                    UserLogs u = new UserLogs(db);
+                    u.LogDetails(username, IPAddress, "Logged In");
                     return Redirect(returnURL);
                 }
                 else
                 {
+                    UserLogs u = new UserLogs(db);
+                    u.LogDetails(username, IPAddress, "Logged In");
                     TempData["msg"] = "Login Successfull";
                     return RedirectToAction("Index", "Home");
                 }
