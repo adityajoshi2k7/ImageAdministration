@@ -44,8 +44,12 @@ namespace MVCNetAdmin.Controllers
        
         public async Task<IActionResult> Logout()
         {
-            UserLogs u = new UserLogs(db);
-            u.LogDetails(_accessor.HttpContext.User.Claims.FirstOrDefault().Value, IPAddress, "Logged Out");
+            if (_accessor.HttpContext.User.Identity.IsAuthenticated)
+            {
+                UserLogs u = new UserLogs(db);
+                u.LogDetails(_accessor.HttpContext.User.Claims.FirstOrDefault().Value, IPAddress, "Logged Out");
+            }
+           
             await HttpContext.SignOutAsync();
             TempData["logout"] = "You have been logged out. Please close the browser tab for security purposes";
            
