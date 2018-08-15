@@ -39,7 +39,7 @@ namespace MVCNetAdmin.Controllers
             IP = _accessor.HttpContext.Connection.RemoteIpAddress.MapToIPv4();
             IPAddress = IP.ToString();
 
-             _protector = provider.CreateProtector("adi.joshi.ftp.encrypt");    //purpose string should be same for a given usecase...won't be able to decipher for another string usecase
+            _protector = provider.CreateProtector("adi.joshi.ftp.encrypt");    //purpose string should be same for a given usecase...won't be able to decipher for another string usecase
         }
         public IActionResult Index()
         {
@@ -166,7 +166,7 @@ namespace MVCNetAdmin.Controllers
         public ActionResult ViewLogs(string code)
         {
 
-           
+
             return View();
 
 
@@ -257,7 +257,7 @@ namespace MVCNetAdmin.Controllers
         public string RecoverDBFinal(string path)
         {
             Location loc = new Location(db);
-            string result= loc.Recover(path);
+            string result = loc.Recover(path);
             UserLogs u = new UserLogs(db);
             u.LogDetails(currentUserID, IPAddress, "Restored the database from XML files.");
             return result;
@@ -507,7 +507,7 @@ namespace MVCNetAdmin.Controllers
                 }
 
                 UserLogs u = new UserLogs(db);
-                u.LogDetails(currentUserID, IPAddress, "Created site: " +l.Name);
+                u.LogDetails(currentUserID, IPAddress, "Created site: " + l.Name);
                 TempData["msg"] = "The site has been added successfully";
                 return RedirectToAction("Index", "Home");
 
@@ -565,7 +565,7 @@ namespace MVCNetAdmin.Controllers
                 UserLogs u = new UserLogs(db);
                 u.LogDetails(currentUserID, IPAddress, "Edited site: " + result.Name);
             }
-            
+
             TempData["msg"] = "The site has been updated successfully";
             return RedirectToAction("Index", "Home");
         }
@@ -575,17 +575,21 @@ namespace MVCNetAdmin.Controllers
         {
             Location loc = new Location(db);
             String message = loc.PublishSelectedOrALL(_protector, path, code);
-            if (code != "")
+            if (message.Contains("@@"))
             {
-                UserLogs u = new UserLogs(db);
-                u.LogDetails(currentUserID, IPAddress, "Published config files at site: " +code);
+                if (code != "")
+                {
+                    UserLogs u = new UserLogs(db);
+                    u.LogDetails(currentUserID, IPAddress, "Published config files at site: " + code + " " + ". Version: " + message.Split("@@")[1]);
+                }
+                else
+                {
+                    UserLogs u = new UserLogs(db);
+                    u.LogDetails(currentUserID, IPAddress, "Published config files at all sites. " + " " + ". Version: " + message.Split("@@")[1]);
+                }
             }
-            else
-            {
-                UserLogs u = new UserLogs(db);
-                u.LogDetails(currentUserID, IPAddress, "Published config files at all sites. ");
-            }
-            return message;
+
+            return message.Split("@@")[0];
         }
 
 

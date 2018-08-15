@@ -562,9 +562,9 @@ namespace MVCNetAdmin.Models
 
 
                     currloc.ConfigFileVersion = latestVersion + 1;
-
+                    
                     db.SaveChanges();
-                    return "Config files published successfully. Please check the files at the location path(s).";
+                    return "Config files published successfully. Please check the files at the location path(s).@@"+(latestVersion + 1);
             }
                 catch (Exception e)
             {
@@ -758,9 +758,9 @@ namespace MVCNetAdmin.Models
 
 
                 if (errorLog == "")
-                    return "Config files published successfully at all sites. Please check the files at the location path(s).";
+                    return "Config files published successfully at all sites. Please check the files at the location path(s).@@" +(latestVersion + 1);
                 else
-                    return "Config files published successfully." + "\n" + "There were errors while publishing at some sites. Please refer to the errors below:" + "\n" + "\n" + errorLog;
+                    return "Config files published successfully." + "\n" + "There were errors while publishing at some sites. Please refer to the errors below:" + "\n" + "\n" + errorLog+"@@"+ (latestVersion + 1);
             }
 
         }
